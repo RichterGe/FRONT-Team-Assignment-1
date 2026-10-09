@@ -19,7 +19,11 @@ The visual concept interprets a foundry as a place where ideas become playable e
 
 Dark mode is the defualt and uses deep blue surfaces, light text, and bright accents. Light mode uses pale neutral surfaces, dark text, and darker accents. Cyan remains the primary action color in both themes; orange supplements it as a contrasting color introducing warmth.
 
-The palette uses "--blue-950" #08131C and "--blue-900" #10222E for dark backgrounds and layered surfaces. "--cyan-500" #18D7E8 highlights the hero button and selected headline text, while "--cyan-700" #007E91 provides a darker alternative for the light theme. Neutral tones, including "--gray-050" #F5F8FA and "--gray-900" #17212B, support readable text. The orange scale ranges from "--orange-300" #FFB36B to "--orange-700" #9E470F and is reserved for secondary emphasis, such as featured-session badges.
+- **Dark backgrounds and layered surfaces:** --blue-950 #08131C and --blue-900 #10222E
+- **Hero button and headline highlights:** --cyan-500 #18D7E8
+- **Darker cyan alternative for the light theme:** --cyan-700 #007E91
+- **Neutral text colors:** --gray-050 #F5F8FA and --gray-900 #17212B
+- **Secondary emphasis and featured-session badges:** Orange tones ranging from --orange-300 #FFB36B to --orange-700 #9E470F
 
 
 ## Spacing and Typography
