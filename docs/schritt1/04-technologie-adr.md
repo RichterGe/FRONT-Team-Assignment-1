@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Approved
 
 ## Datum
 
@@ -13,7 +13,7 @@ Proposed
 Die GameFoundry-Konferenzplattform erfordert eine Basis, die mehrere Seitentypen – einschließlich einer allgemeinen 
 Übersicht, Session-Detailseiten und eines personalisierten Dashboards – sowie das State-Management zum Speichern 
 eines persönlichen Programms unterstützt. Das Setup muss effizientes Routing und eine zuverlässige 
-lokale Datenpersistenz ermöglichen. Das Entwicklungsteam verfügt über aktuelle, praktische Erfahrung im Aufbau 
+lokale Datenpersistenz ermöglichen. Unser Entwicklungsteam verfügt über aktuelle, praktische Erfahrung im Aufbau 
 komponentenbasierter Architekturen mit Vue 3, Vite und TypeScript, einschließlich der erfolgreichen Implementierung 
 von localStorage-Persistenz. Wir müssen einen Frontend-Stack wählen, der diese bestehende Workflow-Expertise 
 maximiert und gleichzeitig die Routing-Anforderungen des Projekts erfüllt, ohne unnötigen Overhead einzuführen. 
