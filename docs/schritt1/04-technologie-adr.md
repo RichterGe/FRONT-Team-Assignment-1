@@ -1,49 +1,48 @@
-# ADR-NNNN: [Kurzer Titel, der die Entscheidung beschreibt]
+# ADR-0002: Framework- und Tooling-Setup
 
 ## Status
 
-[Proposed | Accepted | Deprecated | Superseded by ADR-XXXX]
+Proposed
 
 ## Datum
 
-[YYYY-MM-DD]
+2026-10-10
 
 ## Kontext
 
-[Beschreiben Sie die Situation. Welches Problem lösen wir? Welche
-Einschränkungen gibt es? Welche Kräfte wirken? Seien Sie konkret --
-nennen Sie Zahlen, Deadlines, Team-Kompetenzen und technische
-Anforderungen, wo relevant.]
+Die GameFoundry-Konferenzplattform erfordert eine Basis, die mehrere Seitentypen – einschließlich einer allgemeinen 
+Übersicht, Session-Detailseiten und eines personalisierten Dashboards – sowie das State-Management zum Speichern 
+eines persönlichen Programms unterstützt. Das Setup muss effizientes Routing und eine zuverlässige 
+lokale Datenpersistenz ermöglichen. Das Entwicklungsteam verfügt über aktuelle, praktische Erfahrung im Aufbau 
+komponentenbasierter Architekturen mit Vue 3, Vite und TypeScript, einschließlich der erfolgreichen Implementierung 
+von localStorage-Persistenz. Wir müssen einen Frontend-Stack wählen, der diese bestehende Workflow-Expertise 
+maximiert und gleichzeitig die Routing-Anforderungen des Projekts erfüllt, ohne unnötigen Overhead einzuführen. 
 
 ## Entscheidung
 
-[Formulieren Sie die Entscheidung klar und prägnant. Verwenden Sie
-die aktive Form: "Wir werden X verwenden" statt
-"X sollte in Betracht gezogen werden."]
+Wir werden Vue 3 mit Vite, TypeScript und Vue Router als unser primäres Projekt-Setup verwenden.
 
 ## Betrachtete Alternativen
 
-### [Alternative 1]
-- Vorteile: ...
-- Nachteile: ...
-- Warum abgelehnt: ...
-
-### [Alternative 2]
-- Vorteile: ...
-- Nachteile: ...
-- Warum abgelehnt: ...
+### Nuxt.js
+- **Vorteile:** Bietet dateibasiertes Routing und Auto-Imports "out-of-the-box", was den anfänglichen Konfigurationsaufwand deutlich reduziert.
+- **Nachteile:** Führt eine schwerere Abstraktionsschicht und zusätzliche frameworkspezifische Konventionen ein, die über die Standard-Vue-Entwicklung hinausgehen.
+- **Warum abgelehnt:** Die integrierten Funktionen übersteigen unsere aktuellen Anforderungen. Für ein Projekt, das auf einer lokalen conference-data.json-Datei basiert, ist die zusätzliche Komplexität der Full-Stack-Fähigkeiten von Nuxt unnötig und würde die anfängliche Entwicklung verlangsamen.
 
 ## Konsequenzen
 
 ### Positiv
-- [Was wird einfacher oder besser]
+- Die Entwicklung kann sofort mit einem vertrauten, hochperformanten Build-Tool in Form von Vite beginnen.
+- Wir können das "Mein Programm"-Feature sicher aufbauen, indem wir die bewährten localStorage-Persistenzmuster adaptieren, die wir bereits in anderen Vue- und TypeScript-Projekten etabliert haben.
+- Vue Router ermöglicht explizite, anpassbare Routen-Definitionen, die auf die erforderlichen Übersichts- und Detailseiten zugeschnitten sind.
 
 ### Negativ
-- [Was wird schwieriger oder schlechter]
+- Wir müssen Vue Router manuell installieren und konfigurieren und die Routen-Definitionen in einer dedizierten Konfigurationsdatei verwalten, anstatt uns auf automatisches dateibasiertes Routing zu verlassen.
+- Wir erhalten keine automatischen Komponenten- und Composable-Imports, wie sie von Higher-Level-Frameworks bereitgestellt werden.
 
 ### Risiken
-- [Was könnte schiefgehen]
+- Die manuelle Routing-Konfiguration könnte anfängliche Setup-Fehler einführen.
 
 ## Verwandte Entscheidungen
 
-- [Links zu verwandten ADRs]
+- ADR-0001: Komponentenschichten und Headless-Session-Filterung
