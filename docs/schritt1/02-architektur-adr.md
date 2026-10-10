@@ -32,7 +32,7 @@ Feature-Komponenten dürfen Base-Komponenten verwenden. Base-Komponenten dürfen
 
 
 ### Ordnerstruktur
-
+```
 root/
 ├── components/
 │   ├── base/
@@ -60,7 +60,7 @@ root/
 
 tokens/
 └── tokens.css
-
+```
 
 
 ## Betrachtete Alternativen
