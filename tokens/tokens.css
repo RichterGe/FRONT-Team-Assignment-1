@@ -67,35 +67,7 @@
 }
 
  /* Semantic Tokens (Theme Colors) */
-:root,
-[data-theme="light"] {
-  --color-bg: var(--gray-050);
-  --color-surface: var(--gray-000);
-  --color-surface-alt: var(--gray-100);
-  --color-border: var(--gray-200);
-
-  --color-text-primary: var(--gray-800);
-  --color-text-secondary: var(--gray-700);
-  --color-text-muted: var(--gray-400);
-
-  --color-action-primary: var(--cyan-700);
-  --color-action-primary-hover: var(--blue-800);
-  --color-action-primary-text: var(--gray-000);
-
-  --color-accent-cool: var(--cyan-500);
-  --color-accent-warm: var(--orange-500);
-  --color-accent-warm-hover: var(--orange-600);
-
-  --color-hero-title: var(--blue-900);
-  --color-hero-highlight: var(--cyan-700);
-
-  --color-badge-featured-bg: var(--gray-100);
-  --color-badge-featured-text: var(--orange-700);
-
-  --color-focus-ring: var(--cyan-600);
-}
-
-[data-theme="dark"] {
+:root,[data-theme="dark"] {
   --color-bg: var(--blue-950);
   --color-surface: var(--gray-950);
   --color-surface-alt: var(--blue-900);
