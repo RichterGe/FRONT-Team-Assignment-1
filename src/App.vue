@@ -1,47 +1,76 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { onMounted } from 'vue'
+import { useConferenceData } from './composables/useConferenceData'
+
+const { sessions, conferenceName, isLoading, loadData } = useConferenceData()
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>GameFoundry</h1>
+      <p class="tagline">Forge Your Schedule</p>
+    </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+    <main class="app-content">
+      <section class="card">
+        <h2>System Status</h2>
 
-  <main>
-    <TheWelcome />
-  </main>
+        <div v-if="isLoading">Lade Konferenzdaten...</div>
+        <div v-else class="success-message">
+          <strong>{{ conferenceName }}</strong> erfolgreich geladen.<br />
+          Anzahl der verfügbaren Sessions: <strong>{{ sessions.length }}</strong>
+        </div>
+
+        <button class="primary-btn">Zum Programm hinzufügen (TODO)</button>
+      </section>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
+.app-shell {
+  padding: var(--space-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-32);
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.app-header h1 {
+  color: var(--color-action-primary);
+  margin: 0;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+.tagline {
+  color: var(--color-accent);
+  margin-top: var(--space-4);
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+.card {
+  background-color: var(--color-surface-card);
+  padding: var(--space-24);
+  border-radius: 8px;
+  max-width: 600px;
+}
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.primary-btn {
+  margin-top: var(--space-16);
+  background-color: var(--color-action-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  padding: var(--space-8) var(--space-16);
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.success-message {
+  border-left: 4px solid var(--color-action-primary);
+  padding-left: var(--space-8);
+  margin: var(--space-16) 0;
 }
 </style>
