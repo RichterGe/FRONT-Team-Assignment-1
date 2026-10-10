@@ -29,6 +29,11 @@ Wir werden Vue 3 mit Vite, TypeScript und Vue Router als unser primäres Projekt
 - **Nachteile:** Führt eine schwerere Abstraktionsschicht und zusätzliche frameworkspezifische Konventionen ein, die über die Standard-Vue-Entwicklung hinausgehen.
 - **Warum abgelehnt:** Die integrierten Funktionen übersteigen unsere aktuellen Anforderungen. Für ein Projekt, das auf einer lokalen conference-data.json-Datei basiert, ist die zusätzliche Komplexität der Full-Stack-Fähigkeiten von Nuxt unnötig und würde die anfängliche Entwicklung verlangsamen.
 
+### React mit Vite und React Router
+- **Vorteile:** Bietet ein riesiges Ökosystem und hochflexible Komponentenstrukturen.
+- **Nachteile:** Erfordert die Übernahme eines völlig anderen mentalen Modells für Reaktivität (Hooks vs. Composition API) und State-Management.
+- **Warum abgelehnt:** Die Wahl von React würde die unmittelbare Vertrautheit und Workflow-Effizienz des Teams mit der Composition API von Vue 3 verwerfen.
+
 ## Konsequenzen
 
 ### Positiv
