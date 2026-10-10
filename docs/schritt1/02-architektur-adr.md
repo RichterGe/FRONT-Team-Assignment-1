@@ -1,19 +1,23 @@
-# ADR-NNNN: [Kurzer Titel, der die Entscheidung beschreibt]
+# ADR-NNNN: Komponentenschichten und Headless-Session-Filterung
 
 ## Status
 
-[Proposed | Accepted | Deprecated | Superseded by ADR-XXXX]
+Proposed
 
 ## Datum
 
-[YYYY-MM-DD]
+2026-10-10
 
 ## Kontext
 
-[Beschreiben Sie die Situation. Welches Problem lösen wir? Welche
-Einschränkungen gibt es? Welche Kräfte wirken? Seien Sie konkret --
-nennen Sie Zahlen, Deadlines, Team-Kompetenzen und technische
-Anforderungen, wo relevant.]
+GameFoundry ist eine Konferenzplattform mit einer Programmübersicht, Session- und Speaker-Detailseiten sowie einem persönlichen Programm. Wir entwickeln das Projekt als Zweierteam und benötigen eine verständliche Struktur, die paralleles Arbeiten und spätere Erweiterungen unterstützt.
+
+Die Architektur muss generische UI-Elemente, konferenzbezogene Funktionen und das Seitenlayout klar voneinander trennen.
+
+
+Für die Session-Filterung wollen wir vermeiden, dass Filterzustand, Ergebnisberechnung und visuelle Darstellung innerhalb einer großen Seitenkomponente vermischt werden. Gleichzeitig soll die Architektur für den aktuellen Projektumfang überschaubar bleiben.
+
+Die Technologieentscheidung zwischen Nuxt und Vue + Vite ist noch offen. Deshalb legen wir zunächst die logische Struktur fest; frameworkabhängige Seiten- und Routing-Pfade werden anschließend ergänzt.
 
 ## Entscheidung
 
