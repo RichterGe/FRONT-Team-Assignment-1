@@ -28,7 +28,7 @@ Dark mode is the defualt and uses deep blue surfaces, light text, and bright acc
 
 ## Spacing and Typography
 
-Spacing follows a four-pixel base, with steps of 4, 8, 12, 16, 24, 32, 48, and 64 pixels. Smaller values support compact interface elements, while larger values separate cards and sections.
+Spacing follows a four-pixel base, with steps of 4, 8, 16, 24, 32, 48, and 64 pixels. Smaller values support compact interface elements, while larger values separate cards and sections.
 
 Typography uses a scale of 12, 14, 16, 20, 24, 32, and 48 pixels, implemented in relative rem units. Body text starts at 16 pixels, with smaller sizes reserved for labels and metadata. Larger sizes establish clear heading and hero hierarchies.
 
@@ -42,4 +42,8 @@ The centrally maintained "tokens.css" file serves as the Single Source of Truth.
 
 **Consistency:** Shared roles ensure that primary actions, surfaces, and text follow the same visual rules throughout the platform. Component-specific aliases may be introduced where necessary, but they must reference semantic tokens rather than bypassing them.
 
-**Accessibility:** Centralized text and background roles make contrast checks repeatable. [I need to add contrast check here]
+**Accessibility:** I tested the color pairs with the highest risk.
+Dark Mode: Dark blue background to cyan colored text has a contrast ratio of 7.01:1
+Light Mode: bright grey background to cyan colored text has a contrast ratio of 4.48:1
+
+
