@@ -50,4 +50,4 @@ Wir werden Vue 3 mit Vite, TypeScript und Vue Router als unser primäres Projekt
 
 ## Verwandte Entscheidungen
 
-- ADR-0001: Komponentenschichten und Headless-Session-Filterung
+- [ADR-0001: Komponentenschichten und Headless-Session-Filterung](02-architektur-adr.md)
