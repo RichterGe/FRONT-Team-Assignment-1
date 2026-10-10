@@ -11,7 +11,7 @@ onMounted(() => {
 
 
 //Theme Button logic - temporary placement until the next step
-const currentTheme = ref('light')
+const currentTheme = ref('dark')
 const toggleTheme = () => {
   currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
 }
@@ -50,6 +50,7 @@ const toggleTheme = () => {
     >
       Switch to {{ currentTheme === 'light' ? 'dark' : 'light' }} Mode
     </button>
+
   </div>
 </template>
 
