@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { onMounted } from 'vue'
 import { useConferenceData } from './composables/useConferenceData'
 
-const { sessions, conferenceName, isLoading, loadData } = useConferenceData()
+const { sessions, conferenceName, isLoading, error, loadData } = useConferenceData()
 
 onMounted(() => {
   loadData()
@@ -30,10 +30,14 @@ const toggleTheme = () => {
         <h2>System Status</h2>
 
         <div v-if="isLoading">Lade Konferenzdaten...</div>
+        <div v-else-if="error" class="error-message">
+          <strong>{{ conferenceName }}</strong> konnte nicht geladen werden.
+        </div>
         <div v-else class="success-message">
           <strong>{{ conferenceName }}</strong> erfolgreich geladen.<br />
           Anzahl der verfügbaren Sessions: <strong>{{ sessions.length }}</strong>
         </div>
+
 
         <button class="button-primary">Zum Programm hinzufügen (TODO)</button>
       </section>
