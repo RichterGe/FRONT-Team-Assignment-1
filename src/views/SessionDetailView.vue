@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { type ConferenceSpeaker, useConferenceData } from '@/composables/useConferenceData'
+import {
+  type ConferenceSpeaker,
+  type ConferenceRoom,
+  type ConferenceTrack,
+  useConferenceData,
+} from '@/composables/useConferenceData'
 import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
 
 const props = defineProps<{
   id: string
 }>()
 
-const { sessions, speakers, isLoading, error, loadData } = useConferenceData()
+const { sessions, speakers, tracks, rooms, isLoading, error, loadData } = useConferenceData()
 const { isBookmarked, toggleSession } = usePersonalProgramme()
 
 onMounted(async () => {
@@ -24,6 +29,16 @@ const sessionSpeakers = computed<ConferenceSpeaker[]>(() => {
   return session.value.speakerIds
     .map((id) => speakers.value.find((sp) => sp.id === id))
     .filter((sp): sp is ConferenceSpeaker => sp !== undefined)
+})
+
+const sessionRoom = computed<ConferenceRoom | undefined>(() => {
+  if (!session.value) return undefined
+  return rooms.value.find((r) => r.id === session.value?.roomId)
+})
+
+const sessionTrack = computed<ConferenceTrack | undefined>(() => {
+  if (!session.value) return undefined
+  return tracks.value.find((t) => t.id === session.value?.trackId)
 })
 </script>
 
@@ -65,11 +80,11 @@ const sessionSpeakers = computed<ConferenceSpeaker[]>(() => {
         </div>
         <div class="meta-row">
           <strong>Room:</strong>
-          <span>{{ session.roomId }}</span>
+          <span>{{ sessionRoom?.name ?? session.roomId }}</span>
         </div>
         <div class="meta-row">
           <strong>Track:</strong>
-          <span>{{ session.trackId }}</span>
+          <span>{{ sessionTrack?.name ?? session.trackId }}</span>
         </div>
       </section>
 

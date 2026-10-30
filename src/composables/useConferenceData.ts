@@ -48,42 +48,67 @@ export interface ConferenceData {
   sessions: ConferenceSession[]
 }
 
-export function useConferenceData() {
-  const sessions = ref<ConferenceSession[]>([])
-  const conferenceName = ref<string>('')
-  const isLoading = ref(true)
-  const error = ref<string | null>(null)
-  const speakers = ref<ConferenceSpeaker[]>([])
+// Shared module-level reactive state (global cache across components)
+const sessions = ref<ConferenceSession[]>([])
+const speakers = ref<ConferenceSpeaker[]>([])
+const tracks = ref<ConferenceTrack[]>([])
+const rooms = ref<ConferenceRoom[]>([])
+const conferenceName = ref<string>('')
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+let loadPromise: Promise<void> | null = null
 
+export function useConferenceData() {
   // Reaktiver State für die drei Filter
   // null bedeutet: "Kein Filter aktiv / Zeige alle"
   const selectedTrack = ref<string | null>(null)
   const selectedDay = ref<string | null>(null)
   const selectedLevel = ref<string | null>(null)
 
-  const loadData = async () => {
-    try {
-      const response = await fetch('/conference-data.json')
-
-      if (!response.ok) {
-        error.value = `Fehler beim Laden: ${response.status} ${response.statusText}`
-        return
-      }
-
-      const data = (await response.json()) as ConferenceData
-
-      sessions.value = data.sessions
-      speakers.value = data.speakers
-      conferenceName.value = data.conference.name
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        error.value = err.message
-      } else {
-        error.value = 'Ein unbekannter Fehler ist beim Laden aufgetreten.'
-      }
-    } finally {
+  const loadData = async (force = false) => {
+    // Wenn bereits Daten vorhanden sind und kein Reload erzwungen wird: Cache nutzen
+    if (sessions.value.length > 0 && !force) {
       isLoading.value = false
+      return
     }
+
+    // Wenn bereits ein Ladevorgang aktiv ist, darauf warten
+    if (loadPromise) {
+      return loadPromise
+    }
+
+    isLoading.value = true
+    error.value = null
+
+    loadPromise = (async () => {
+      try {
+        const response = await fetch('/conference-data.json')
+
+        if (!response.ok) {
+          error.value = `Fehler beim Laden: ${response.status} ${response.statusText}`
+          return
+        }
+
+        const data = (await response.json()) as ConferenceData
+
+        sessions.value = data.sessions
+        speakers.value = data.speakers
+        tracks.value = data.tracks
+        rooms.value = data.rooms
+        conferenceName.value = data.conference.name
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          error.value = err.message
+        } else {
+          error.value = 'Ein unbekannter Fehler ist beim Laden aufgetreten.'
+        }
+      } finally {
+        isLoading.value = false
+        loadPromise = null
+      }
+    })()
+
+    return loadPromise
   }
 
   // Die berechnete, gefilterte Liste
@@ -108,9 +133,11 @@ export function useConferenceData() {
   }
 
   return {
-    sessions, // Das rohe Original-Array (wird meist nicht mehr direkt gerendert)
+    sessions, // Das rohe Original-Array
     speakers,
-    filteredSessions, // <--- Die UI loopt (v-for) ab jetzt über DIESE Liste
+    tracks,
+    rooms,
+    filteredSessions, // <--- Die UI loopt (v-for) über diese gefilterte Liste
     conferenceName,
     isLoading,
     error,
