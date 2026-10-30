@@ -23,13 +23,6 @@ const routes = [
     name: 'my-programme',
     component: () => import('@/views/PersonalProgrammeView.vue'),
   },
-  // Weitere Routen:
-  // {
-  //   path: '/speakers/:id',
-  //   name: 'speaker-detail',
-  //   component: () => import('@/views/SpeakerDetailView.vue'),
-  //   props: true,
-  // },
 ]
 
 export const router = createRouter({
@@ -42,5 +35,8 @@ export const router = createRouter({
     return { top: 0 }
   },
 })
+
+
+
 
 export default router
