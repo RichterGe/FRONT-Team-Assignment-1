@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useConferenceData } from '@/composables/useConferenceData'
+import { type ConferenceSpeaker, useConferenceData } from '@/composables/useConferenceData'
 
 const props = defineProps<{
   id: string
 }>()
 
-const { sessions, isLoading, error, loadData } = useConferenceData()
+const { sessions, speakers, isLoading, error, loadData } = useConferenceData()
 
 onMounted(async () => {
   if (sessions.value.length === 0) {
@@ -16,6 +16,13 @@ onMounted(async () => {
 })
 
 const session = computed(() => sessions.value.find((s) => s.id === props.id))
+
+const sessionSpeakers = computed<ConferenceSpeaker[]>(() => {
+  if (!session.value?.speakerIds) return []
+  return session.value.speakerIds
+    .map((id) => speakers.value.find((sp) => sp.id === id))
+    .filter((sp): sp is ConferenceSpeaker => sp !== undefined)
+})
 </script>
 
 <template>
@@ -61,9 +68,9 @@ const session = computed(() => sessions.value.find((s) => s.id === props.id))
       <section class="session-speakers" v-if="session.speakerIds && session.speakerIds.length > 0">
         <h3>Speaker</h3>
         <ul class="speaker-list">
-          <li v-for="speakerId in session.speakerIds" :key="speakerId">
-            <RouterLink :to="`/speakers/${speakerId}`" class="speaker-link">
-              View speaker profile (ID: {{ speakerId }})
+          <li v-for="speaker in sessionSpeakers" :key="speaker.id">
+            <RouterLink :to="`/speakers/${speaker.id}`" class="speaker-link">
+              {{ speaker.name }}
             </RouterLink>
           </li>
         </ul>
