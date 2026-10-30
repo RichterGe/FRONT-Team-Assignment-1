@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface ConferenceTrack {
   id: string
@@ -54,10 +54,15 @@ export function useConferenceData() {
   const isLoading = ref(true)
   const error = ref<string | null>(null)
 
+  // Reaktiver State für die drei Filter
+  // null bedeutet: "Kein Filter aktiv / Zeige alle"
+  const selectedTrack = ref<string | null>(null)
+  const selectedDay = ref<string | null>(null)
+  const selectedLevel = ref<string | null>(null)
+
   const loadData = async () => {
     try {
       const response = await fetch('/conference-data.json')
-
 
       if (!response.ok) {
         error.value = `Fehler beim Laden: ${response.status} ${response.statusText}`
@@ -79,11 +84,37 @@ export function useConferenceData() {
     }
   }
 
+  // Die berechnete, gefilterte Liste
+  const filteredSessions = computed(() => {
+    return sessions.value.filter((session) => {
+      // Wenn ein Filter gesetzt ist (nicht null), prüfe ob der Wert übereinstimmt.
+      // Wenn der Filter null ist, setze match auf true (dieser Filter blockiert die Session nicht).
+      const matchTrack = selectedTrack.value ? session.trackId === selectedTrack.value : true
+      const matchDay = selectedDay.value ? session.day === selectedDay.value : true
+      const matchLevel = selectedLevel.value ? session.level === selectedLevel.value : true
+
+      // UND-Verknüpfung: Alle aktiven Bedingungen müssen true sein
+      return matchTrack && matchDay && matchLevel
+    })
+  })
+
+  // Optionales Quality-of-Life Feature: Alle Filter zurücksetzen
+  const clearFilters = () => {
+    selectedTrack.value = null
+    selectedDay.value = null
+    selectedLevel.value = null
+  }
+
   return {
-    sessions,
+    sessions, // Das rohe Original-Array (wird meist nicht mehr direkt gerendert)
+    filteredSessions, // <--- Die UI loopt (v-for) ab jetzt über DIESE Liste
     conferenceName,
     isLoading,
     error,
+    selectedTrack, // Die UI bindet Dropdowns via v-model an diese Refs
+    selectedDay,
+    selectedLevel,
+    clearFilters,
     loadData,
   }
 }
