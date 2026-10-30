@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 export interface ConferenceTrack {
   id: string
@@ -59,12 +59,6 @@ const error = ref<string | null>(null)
 let loadPromise: Promise<void> | null = null
 
 export function useConferenceData() {
-  // Reaktiver State für die drei Filter
-  // null bedeutet: "Kein Filter aktiv / Zeige alle"
-  const selectedTrack = ref<string | null>(null)
-  const selectedDay = ref<string | null>(null)
-  const selectedLevel = ref<string | null>(null)
-
   const loadData = async (force = false) => {
     // Wenn bereits Daten vorhanden sind und kein Reload erzwungen wird: Cache nutzen
     if (sessions.value.length > 0 && !force) {
@@ -111,40 +105,14 @@ export function useConferenceData() {
     return loadPromise
   }
 
-  // Die berechnete, gefilterte Liste
-  const filteredSessions = computed(() => {
-    return sessions.value.filter((session) => {
-      // Wenn ein Filter gesetzt ist (nicht null), prüfe ob der Wert übereinstimmt.
-      // Wenn der Filter null ist, setze match auf true (dieser Filter blockiert die Session nicht).
-      const matchTrack = selectedTrack.value ? session.trackId === selectedTrack.value : true
-      const matchDay = selectedDay.value ? session.day === selectedDay.value : true
-      const matchLevel = selectedLevel.value ? session.level === selectedLevel.value : true
-
-      // UND-Verknüpfung: Alle aktiven Bedingungen müssen true sein
-      return matchTrack && matchDay && matchLevel
-    })
-  })
-
-  // Optionales Quality-of-Life Feature: Alle Filter zurücksetzen
-  const clearFilters = () => {
-    selectedTrack.value = null
-    selectedDay.value = null
-    selectedLevel.value = null
-  }
-
   return {
     sessions, // Das rohe Original-Array
     speakers,
     tracks,
     rooms,
-    filteredSessions, // <--- Die UI loopt (v-for) über diese gefilterte Liste
     conferenceName,
     isLoading,
     error,
-    selectedTrack, // Die UI bindet Dropdowns via v-model an diese Refs
-    selectedDay,
-    selectedLevel,
-    clearFilters,
     loadData,
   }
 }

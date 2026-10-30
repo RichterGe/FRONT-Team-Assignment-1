@@ -1,11 +1,9 @@
 # ADR-0001: Komponentenschichten und Headless-Session-Filterung
 
 ## Status
-
-Proposed
+Approved
 
 ## Datum
-
 2026-10-10
 
 ## Kontext
