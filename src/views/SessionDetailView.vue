@@ -2,12 +2,14 @@
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { type ConferenceSpeaker, useConferenceData } from '@/composables/useConferenceData'
+import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
 
 const props = defineProps<{
   id: string
 }>()
 
 const { sessions, speakers, isLoading, error, loadData } = useConferenceData()
+const { isBookmarked, toggleSession } = usePersonalProgramme()
 
 onMounted(async () => {
   if (sessions.value.length === 0) {
@@ -41,7 +43,18 @@ const sessionSpeakers = computed<ConferenceSpeaker[]>(() => {
 
     <article v-else-if="session" class="card session-article">
       <header class="session-header">
-        <span class="session-badge">{{ session.format }} &bull; {{ session.level }}</span>
+        <div class="session-header-top">
+          <span class="session-badge">{{ session.format }} &bull; {{ session.level }}</span>
+          <button
+            type="button"
+            class="btn-bookmark"
+            :class="{ 'is-bookmarked': isBookmarked(session.id) }"
+            :aria-pressed="isBookmarked(session.id)"
+            @click="toggleSession(session.id)"
+          >
+            {{ isBookmarked(session.id) ? '★ In My Programme' : '☆ Add to Programme' }}
+          </button>
+        </div>
         <h1 class="session-title">{{ session.title }}</h1>
       </header>
 
@@ -106,13 +119,48 @@ const sessionSpeakers = computed<ConferenceSpeaker[]>(() => {
   margin-bottom: var(--space-16);
 }
 
+.session-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
 .session-badge {
   display: inline-block;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.75;
-  margin-bottom: var(--space-8);
+}
+
+.btn-bookmark {
+  background: transparent;
+  color: var(--color-action-primary);
+  border: 1px solid var(--color-action-primary);
+  padding: var(--space-4);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--text-label);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-bookmark:hover {
+  background: var(--color-action-primary-hover);
+  color: var(--color-action-primary-text);
+}
+
+.btn-bookmark.is-bookmarked {
+  background: var(--color-action-primary);
+  color: var(--color-action-primary-text);
+}
+
+.btn-bookmark.is-bookmarked:hover {
+  background: var(--color-accent-warm);
+  border-color: var(--color-accent-warm);
+  color: var(--color-bg);
 }
 
 .session-title {

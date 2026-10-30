@@ -7,21 +7,22 @@ const routes = [
     component: () => import('@/views/SessionDetailView.vue'),
     props: true,
   },
-  // Weitere Routen: {
-  //     path: '/',
-  //     name: 'conference-overview',
-  //     component: () => import('@/views/ConferenceOverviewView.vue'),
-  //   },
+  {
+    path: '/',
+    name: 'conference-overview',
+    component: () => import('@/views/ConferenceOverviewView.vue'),
+  },
+  {
+    path: '/my-programme',
+    name: 'my-programme',
+    component: () => import('@/views/PersonalProgrammeView.vue'),
+  },
+  // Weitere Routen:
   // {
   //   path: '/speakers/:id',
   //   name: 'speaker-detail',
   //   component: () => import('@/views/SpeakerDetailView.vue'),
   //   props: true,
-  // },
-  // {
-  //   path: '/my-programme',
-  //   name: 'my-programme',
-  //   component: () => import('@/views/PersonalProgrammeView.vue'),
   // },
 ]
 
