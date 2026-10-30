@@ -7,7 +7,7 @@ Zweck (warum dieser Prompt, was sollte er lösen?).
 | Datum | Tool | Prompt | Zweck |
 |:------|:-----|:-------|:------|
 
-30.10-2016 | Copilot | Prüfe: Gibt es für die Session Übersicht zusätzliche Möglichkleiten die aktuellen Risiken zu verhindern oder zu minimieren? | Strategien für Risiken verbessern
+|30.10.26 | Copilot | Prüfe: Gibt es für die Session Übersicht zusätzliche Möglichkleiten die aktuellen Risiken zu verhindern oder zu minimieren? | Strategien für Risiken verbessern
 
 | 30.10.26 | Copilot | Womit fange ich am besten für Aufgabe B und D an und wie? damit ich wieder ins thema reinkomme | Wiedereinstieg in die Aufgaben sowie B und D planen |
 
@@ -15,7 +15,7 @@ Zweck (warum dieser Prompt, was sollte er lösen?).
 
 | 30.10.26 | Copilot | Wie würde ich die conferenceoverview wie in @file:05-rendering-strategie-adr.md definiert implementieren? | Rendering-Entscheidung aus der ADR auf die Overview anwenden |
 
-30.10-2016 | Copilot | Prüfe die vorhandene architektur basierend auf unseren ADRs und modernen component patterns und mache vorschläge was noch verbesserungswürdig ist | Aktuellen Status einsehen und prüfen
+| 30.10.26 | Copilot | Prüfe die vorhandene architektur basierend auf unseren ADRs und modernen component patterns und mache vorschläge was noch verbesserungswürdig ist | Aktuellen Status einsehen und prüfen
 
 | 30.10.26 | Copilot | Wie kann ich einzelne Sessions klickbar machen und mit dem Router verbinden? | Ursache für fehlende Navigation von der Session-Übersicht zu Detailseiten finden |
 
@@ -25,4 +25,10 @@ Zweck (warum dieser Prompt, was sollte er lösen?).
 
 | 30.10.26 | Copilot | Encapsulate Speaker Detail View based on modern component patterns and use the SpeakerCard.vue | Speaker-Detailansicht anhand der Komponentenarchitektur kapseln |
 
-| 30.10.26 | Copilot | Make sure you use the Semantic Tokens from token.css | Semantische Typografie-Tokens anstelle direkter Basiswerte verwenden |
+| 30.10.26 | Copilot | Make sure you use the Semantic Tokens from token.css | Semantische Typografie-Tokens anstelle direkter Basiswerte verwenden | 
+
+| 31.10.26 | Codex | wie setze ich SSG für den SpeakerDetailView.vue um? | Verstehen, wie sich Speaker-Profile im bestehenden Vue-/Vite-Projekt beim Build statisch rendern lassen. |
+
+| 31.10.26 | Codex | Wie stelle ich routen für den Build bereit? | Verstehen, wie die Routendefinitionen für den SSG-Build exportiert und verwendet werden. |
+
+| 31.10.26 | Codex | Überprüfe die aktuelle implementation | Die SSG-Änderungen prüfen und Build-Fehler sowie fehlende Schritte identifizieren. |
