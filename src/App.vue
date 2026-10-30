@@ -88,7 +88,7 @@ const { savedSessionIds } = usePersonalProgramme()
   justify-content: center;
   background-color: var(--color-action-primary);
   color: var(--color-action-primary-text);
-  font-size: var(--text-metadata, 0.75rem);
+  font-size: var(--text-metadata);
   font-weight: bold;
   min-width: 1.25rem;
   height: 1.25rem;

@@ -58,6 +58,30 @@
   font-weight: normal;
 }
 
+h1 {
+  font-size: var(--text-heading-page);
+}
+
+h2 {
+  font-size: var(--text-heading-section);
+}
+
+h3 {
+  font-size: var(--text-heading-small);
+}
+
+h4 {
+  font-size: var(--text-body);
+}
+
+h5 {
+  font-size: var(--text-label);
+}
+
+h6 {
+  font-size: var(--text-metadata);
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
@@ -79,7 +103,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: var(--text-body);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

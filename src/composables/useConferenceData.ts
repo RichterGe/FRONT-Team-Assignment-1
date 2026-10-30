@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import conferenceDataJson from '@/data/conference-data.json'
 
 export interface ConferenceTrack {
   id: string
@@ -48,61 +49,26 @@ export interface ConferenceData {
   sessions: ConferenceSession[]
 }
 
+const conferenceData = conferenceDataJson as ConferenceData
+
 // Shared module-level reactive state (global cache across components)
-const sessions = ref<ConferenceSession[]>([])
-const speakers = ref<ConferenceSpeaker[]>([])
-const tracks = ref<ConferenceTrack[]>([])
-const rooms = ref<ConferenceRoom[]>([])
-const conferenceName = ref<string>('')
-const isLoading = ref<boolean>(true)
+const sessions = ref<ConferenceSession[]>(conferenceData.sessions)
+const speakers = ref<ConferenceSpeaker[]>(conferenceData.speakers)
+const tracks = ref<ConferenceTrack[]>(conferenceData.tracks)
+const rooms = ref<ConferenceRoom[]>(conferenceData.rooms)
+const conferenceName = ref<string>(conferenceData.conference.name)
+const isLoading = ref<boolean>(false)
 const error = ref<string | null>(null)
-let loadPromise: Promise<void> | null = null
 
 export function useConferenceData() {
-  const loadData = async (force = false) => {
-    // Wenn bereits Daten vorhanden sind und kein Reload erzwungen wird: Cache nutzen
-    if (sessions.value.length > 0 && !force) {
-      isLoading.value = false
-      return
-    }
-
-    // Wenn bereits ein Ladevorgang aktiv ist, darauf warten
-    if (loadPromise) {
-      return loadPromise
-    }
-
-    isLoading.value = true
+  const loadData = () => {
+    sessions.value = conferenceData.sessions
+    speakers.value = conferenceData.speakers
+    tracks.value = conferenceData.tracks
+    rooms.value = conferenceData.rooms
+    conferenceName.value = conferenceData.conference.name
+    isLoading.value = false
     error.value = null
-
-    loadPromise = (async () => {
-      try {
-        const response = await fetch('/conference-data.json')
-
-        if (!response.ok) {
-          error.value = `Fehler beim Laden: ${response.status} ${response.statusText}`
-          return
-        }
-
-        const data = (await response.json()) as ConferenceData
-
-        sessions.value = data.sessions
-        speakers.value = data.speakers
-        tracks.value = data.tracks
-        rooms.value = data.rooms
-        conferenceName.value = data.conference.name
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          error.value = err.message
-        } else {
-          error.value = 'Ein unbekannter Fehler ist beim Laden aufgetreten.'
-        }
-      } finally {
-        isLoading.value = false
-        loadPromise = null
-      }
-    })()
-
-    return loadPromise
   }
 
   return {

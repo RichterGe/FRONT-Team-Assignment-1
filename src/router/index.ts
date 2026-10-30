@@ -13,6 +13,12 @@ const routes = [
     component: () => import('@/views/ConferenceOverviewView.vue'),
   },
   {
+    path: '/speakers/:id',
+    name: 'speaker-detail',
+    component: () => import('@/views/SpeakerDetailView.vue'),
+    props: true,
+  },
+  {
     path: '/my-programme',
     name: 'my-programme',
     component: () => import('@/views/PersonalProgrammeView.vue'),

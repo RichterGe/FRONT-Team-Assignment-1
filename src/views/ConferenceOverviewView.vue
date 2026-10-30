@@ -77,6 +77,10 @@ onMounted(() => {
   font-size: var(--text-metadata);
 }
 
+.overview__eyebrow {
+  font-size: var(--text-heading-section);
+}
+
 .overview__header h2 {
   margin-top: var(--space-8);
   color: var(--color-hero-highlight);

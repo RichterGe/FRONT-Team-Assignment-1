@@ -118,7 +118,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: var(--space-8);
-  font-size: 0.8rem;
+  font-size: var(--text-metadata);
   color: var(--color-text-muted);
 }
 
@@ -128,12 +128,12 @@ onMounted(async () => {
   background-color: var(--color-surface-alt);
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: var(--text-metadata);
 }
 
 .session-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--text-heading-small);
 }
 
 .session-title a {
@@ -146,7 +146,7 @@ onMounted(async () => {
 }
 
 .session-abstract {
-  font-size: 0.95rem;
+  font-size: var(--text-body);
   color: var(--color-text-secondary);
   line-height: 1.5;
 }
@@ -164,7 +164,7 @@ onMounted(async () => {
   padding: var(--space-4) 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--text-label);
   font-weight: 500;
   transition: all 0.2s ease;
 }

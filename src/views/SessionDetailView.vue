@@ -123,7 +123,7 @@ const sessionTrack = computed<ConferenceTrack | undefined>(() => {
 .breadcrumb a {
   color: var(--color-action-primary);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: var(--text-label);
 }
 
 .breadcrumb a:hover {
@@ -144,7 +144,7 @@ const sessionTrack = computed<ConferenceTrack | undefined>(() => {
 
 .session-badge {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: var(--text-metadata);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.75;
@@ -181,7 +181,7 @@ const sessionTrack = computed<ConferenceTrack | undefined>(() => {
 .session-title {
   color: var(--color-action-primary);
   margin: 0;
-  font-size: 1.6rem;
+  font-size: var(--text-heading-page);
 }
 
 .session-metadata {

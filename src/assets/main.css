@@ -30,6 +30,8 @@
 
 .app-header h1 {
   color: var(--color-action-primary);
+  font-size: var(--text-hero);
+  font-weight: 700;
   margin: 0;
 }
 
@@ -41,6 +43,7 @@
 
 .hero-title {
   color: var(--color-hero-title);
+  font-size: var(--text-heading-section);
 }
 
 .button-primary {
