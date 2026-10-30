@@ -1,20 +1,22 @@
 # ADR-0005: Rendering-Strategien der Anwendungsteile
 
 ## Status
-Proposed
+Approved
 
 ## Datum
 2026-10-30
 
 ## Einleitung
-In diesem Decision Record legen wir die spezifischen Rendering-Strategien (CSR, SSR, SSG oder ISR) für die vier 
-Kernbereiche der GameFoundry-Konferenzplattform fest. Anstatt einen pauschalen Default-Wert für das gesamte Projekt 
-zu übernehmen, evaluieren wir jeden Anwendungsteil separat. Die Wahl der passenden Strategie hängt maßgeblich von 
-den tatsächlichen Dateneigenschaften ab: Ändern sich die Inhalte selten oder häufig? Sind sie für alle Besucher 
-identisch oder nutzerspezifisch personalisiert? Wir bewerten jeden Bereich individuell, um das optimale 
+In diesem Decision Record legen wir die spezifischen Rendering-Strategien (CSR, SSR, SSG oder ISR) für die vier Kernbereiche der GameFoundry-Konferenzplattform fest. Anstatt einen pauschalen Default-Wert für das gesamte Projekt zu übernehmen, evaluieren wir jeden Anwendungsteil separat. 
+
+Die Wahl der passenden Strategie hängt maßgeblich von 
+den tatsächlichen Dateneigenschaften ab: 
+- Ändern sich die Inhalte selten oder häufig? 
+- Sind sie für alle Besucher identisch oder nutzerspezifisch personalisiert? 
+
+Wir bewerten jeden Bereich individuell, um das optimale 
 Gleichgewicht zwischen initialer Ladezeit (Performance), Suchmaschinenoptimierung (SEO) und der Aktualität der 
-angezeigten Informationen zu finden. Dabei wird auch das vermittelte Konzept der Hydration und 
-deren Auswirkungen berücksichtigt.
+angezeigten Informationen zu finden. Dabei wird auch das vermittelte Konzept der Hydration und deren Auswirkungen berücksichtigt.
 
 ---
 
@@ -23,10 +25,9 @@ deren Auswirkungen berücksichtigt.
 ### Kontext
 Die Profilseiten der Speaker (Route z.B. `/speakers/[id]`) enthalten biografische Daten, Titel, 
 Firmenzugehörigkeiten sowie eine Liste der von ihnen gehaltenen Sessions. Sobald das Konferenzprogramm 
-veröffentlicht ist, sind diese Daten als extrem statisch zu betrachten. Änderungen an der Biografie oder 
-dem Namen einer Person zur Laufzeit der Konferenz kommen in der Praxis so gut wie nicht vor. Gleichzeitig 
-sollen Speaker-Profile für Marketingzwecke gut über Suchmaschinen auffindbar sein, was schnelles Rendering 
-und vollständiges HTML erfordert.
+veröffentlicht ist, sind diese Daten als statisch zu betrachten. Änderungen an der Biografie oder 
+dem Namen einer Person zur Laufzeit der Konferenz kommen in der Praxis so gut wie nicht vor. 
+Gleichzeitig sollen Speaker-Profile für Marketingzwecke gut über Suchmaschinen auffindbar sein, was schnelles Rendering und vollständiges HTML erfordert.
 
 ### Betrachtete Optionen
 *   **SSG (Static Site Generation):** Das HTML wird einmalig zur Build-Zeit vom Server vorgerendert.
@@ -40,8 +41,7 @@ Wir werden **SSG (Static Site Generation)** für die Speaker-Profile verwenden.
 *   **Positiv:** Da der Server die schwere Arbeit bereits im Voraus erledigt, wird das HTML sofort ausgeliefert. 
 Der Nutzer sieht das Profil praktisch verzögerungsfrei. Suchmaschinen und Social-Media-Scraper können 
 Vorschaubilder und Biografien problemlos auslesen, da sie nicht auf die Ausführung von JavaScript angewiesen sind.
-*   **Negativ:** Sollte sich wider Erwarten doch ein Tippfehler in einer Biografie befinden, muss ein kompletter, 
-neuer Build-Prozess angestoßen und deployed werden, um die Änderung sichtbar zu machen.
+*   **Negativ:** Sollte sich wider Erwarten doch ein Tippfehler in einer Biografie befinden, muss ein kompletter, neuer Build-Prozess angestoßen und deployed werden, um die Änderung sichtbar zu machen.
 *   **Risiken:** Bei einer Konferenz mit hunderten Speakern könnte die Build-Zeit anwachsen.
 
 ---
@@ -49,33 +49,26 @@ neuer Build-Prozess angestoßen und deployed werden, um die Änderung sichtbar z
 ## 2. Session-Übersicht mit Filterung
 
 ### Kontext
-Die Übersichtsseite listet alle 20 Sessions auf und ermöglicht das Filtern nach Track, Tag und Level
-(UND-Verknüpfung). Die Daten werden zentral über `useConferenceData()` bezogen. Da dies die Haupteinstiegsseite
-der Plattform ist, ist die anfängliche Ladezeit sowie die Indexierbarkeit für SEO äußerst wichtig. Gleichzeitig
-erwarten die Nutzer, dass die Filter sofort und ohne sichtbare Ladeunterbrechung reagieren, wenn sie Tracks oder
-Tage anklicken.
+Die Übersichtsseite listet alle (20) Sessions auf und ermöglicht das Filtern nach Track, Tag und Level
+(UND-Verknüpfung). Die Daten werden zentral über `useConferenceData()` bezogen. 
+Da dies die Haupteinstiegsseite der Plattform ist, ist die anfängliche Ladezeit sowie die Indexierbarkeit für SEO äußerst wichtig. 
+Gleichzeitig erwarten die Nutzer, dass die Filter sofort und ohne sichtbare Ladeunterbrechung reagieren, wenn sie Tracks oder Tage anklicken.
 
 ### Betrachtete Optionen
 *   **Reines SSR (Server-Side Rendering):** Die Seite und jeder Filter-Status wird vom Server generiert.
-*   **Reines CSR (Client-Side Rendering):** Der Client lädt ein leeres Div und baut die 20 Sessions erst auf, wenn
-    das JavaScript geladen ist. SEO wird erschwert.
-*   **Hybrides Rendering (SSG mit anschließender CSR-Hydration):** Die ungefilterte Liste aller 20 Sessions wird
-    statisch ausgeliefert; nach der Hydration wird die Filterung rein im Client berechnet.
+*   **Reines CSR (Client-Side Rendering):** Der Client lädt ein leeres Div und baut die 20 Sessions erst auf, wenn das JavaScript geladen ist. SEO wird erschwert.
+*   **Hybrides Rendering (SSG mit anschließender CSR-Hydration):** Die ungefilterte Liste aller 20 Sessions wird statisch ausgeliefert; nach der Hydration wird die Filterung rein im Client berechnet.
 
 ### Entscheidung
-Wir entscheiden uns für den hybriden Ansatz: **SSG für den initialen Load, danach vollständige Client-Side
-Filterung (CSR)**.
+Wir entscheiden uns für den hybriden Ansatz: 
+**SSG für den initialen Load, danach vollständige Client-Side Filterung (CSR)**.
 
 ### Konsequenzen
-*   **Positiv:** Der Server sendet das komplett geformte HTML der Gesamtübersicht. Der Nutzer sieht das Programm
-    sofort, was die wahrgenommene Ladezeit drastisch verbessert. Nach der Hydration (dem "Aufwachen" der Vue-App)
-    übernimmt das JavaScript. Da der Datensatz mit 20 Sessions sehr klein ist, ist das Filtern im lokalen
-    Browser-Speicher um ein Vielfaches performanter als jeder Netzwerk-Request an einen Server.
-*   **Negativ:** Das gesamte JavaScript-Bundle (die Logik der Filter) muss im Hintergrund heruntergeladen und
-    ausgeführt (hydriert) werden, bevor die Filter-Buttons tatsächlich klickbar und interaktiv sind.
-*   **Risiken:** Bei extrem langsamen Verbindungen könnte es vorkommen, dass der Nutzer die Liste sieht und einen
-    Filter klickt, bevor die Hydration abgeschlossen ist. Da unsere Logik jedoch minimal ist, betrachten wir dieses
-    Risiko als gering.
+*   **Positiv:** Der Server sendet das komplett geformte HTML der Gesamtübersicht. Der Nutzer sieht das Programm sofort, was die wahrgenommene Ladezeit drastisch verbessert. Nach der Hydration (dem "Aufwachen" der Vue-App) übernimmt das JavaScript. Da der Datensatz mit 20 Sessions sehr klein ist, ist das Filtern im lokalen Browser-Speicher um ein Vielfaches performanter als jeder Netzwerk-Request an einen Server.
+*   **Negativ:** Das gesamte JavaScript-Bundle (die Logik der Filter) muss im Hintergrund heruntergeladen und ausgeführt (hydriert) werden, bevor die Filter-Buttons tatsächlich klickbar und interaktiv sind.
+*   **Risiken:** Bei extrem langsamen Verbindungen könnte es vorkommen, dass der Nutzer die Liste sieht und einen Filter klickt, bevor die Hydration abgeschlossen ist. Da unsere Logik jedoch minimal ist, betrachten wir dieses Risiko als gering.
+
+    * **Risikominimierung:** Die Filterlogik wird direkt mit der initialen Seite geladen und die Hydration auf geringe Laufzeit optimiert. Bis die Filter interaktiv sind, werden Eingaben entweder kurz gepuffert oder die Filter-Controls als noch nicht verfügbar gekennzeichnet. Die Filterauswahl wird zusätzlich in der URL abgebildet, damit gefilterte Ansichten wiederherstellbar und teilbar sind.
 
 ---
 
