@@ -82,10 +82,7 @@ public/
 src/
 ├── components/
 │   ├── base/
-│   │   ├── BaseButton.vue
 │   │   ├── BaseCard.vue
-│   │   ├── BaseInput.vue
-│   │   └── BaseSelect.vue
 │   ├── features/
 │   │   ├── sessions/
 │   │   │   ├── SessionCard.vue
@@ -93,10 +90,6 @@ src/
 │   │   │   └── SessionList.vue
 │   │   └── programme/
 │   │       └── ProgrammeToggle.vue
-│   └── layout/
-│       ├── AppHeader.vue
-│       ├── AppFooter.vue
-│       └── AppShell.vue
 ├── composables/
 │   ├── useConferenceData.ts
 │   ├── usePersonalProgramme.ts
