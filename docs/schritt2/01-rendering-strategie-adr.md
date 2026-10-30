@@ -20,7 +20,7 @@ angezeigten Informationen zu finden. Dabei wird auch das vermittelte Konzept der
 
 ---
 
-## 1. Speaker-Profile
+## 1. Speaker-Profile (Federführend: Eric Drößiger / Review: Georg Richter)
 
 ### Kontext
 Die Profilseiten der Speaker (Route z.B. `/speakers/[id]`) enthalten biografische Daten, Titel, 
@@ -46,7 +46,7 @@ Vorschaubilder und Biografien problemlos auslesen, da sie nicht auf die Ausführ
 
 ---
 
-## 2. Session-Übersicht mit Filterung
+## 2. Session-Übersicht mit Filterung (Federführend: Eric Drößiger / Review: Georg Richter)
 
 ### Kontext
 Die Übersichtsseite listet alle (20) Sessions auf und ermöglicht das Filtern nach Track, Tag und Level
@@ -72,7 +72,7 @@ Wir entscheiden uns für den hybriden Ansatz:
 
 ---
 
-## 3. Session-Detailseiten
+## 3. Session-Detailseiten (Federführend: Georg Richter / Review: Eric Drößiger)
 
 ### Kontext
 Jede der 20 Sessions besitzt eine eigene Detailseite (Route z.B. `/sessions/[id]`) mit Informationen wie Abstract, 
@@ -106,7 +106,7 @@ SEO und Einfachheit jedoch vertretbar.
 
 ---
 
-## 4. "Mein Programm"-Dashboard
+## 4. "Mein Programm"-Dashboard (Federführend: Georg Richter / Review: Eric Drößiger)
 
 ### Kontext
 Die Seite "Mein Programm" zeigt eine personalisierte Übersicht der ausgewählten Sessions. Die IDs der markierten 
