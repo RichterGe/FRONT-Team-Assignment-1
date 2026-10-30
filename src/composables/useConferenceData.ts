@@ -53,6 +53,7 @@ export function useConferenceData() {
   const conferenceName = ref<string>('')
   const isLoading = ref(true)
   const error = ref<string | null>(null)
+  const speakers = ref<ConferenceSpeaker[]>([])
 
   // Reaktiver State für die drei Filter
   // null bedeutet: "Kein Filter aktiv / Zeige alle"
@@ -72,6 +73,7 @@ export function useConferenceData() {
       const data = (await response.json()) as ConferenceData
 
       sessions.value = data.sessions
+      speakers.value = data.speakers
       conferenceName.value = data.conference.name
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -107,6 +109,7 @@ export function useConferenceData() {
 
   return {
     sessions, // Das rohe Original-Array (wird meist nicht mehr direkt gerendert)
+    speakers,
     filteredSessions, // <--- Die UI loopt (v-for) ab jetzt über DIESE Liste
     conferenceName,
     isLoading,
