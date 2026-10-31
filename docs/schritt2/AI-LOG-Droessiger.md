@@ -32,3 +32,5 @@ Zweck (warum dieser Prompt, was sollte er lösen?).
 | 31.10.26 | Codex | Wie stelle ich routen für den Build bereit? | Verstehen, wie die Routendefinitionen für den SSG-Build exportiert und verwendet werden. |
 
 | 31.10.26 | Codex | Überprüfe die aktuelle implementation | Die SSG-Änderungen prüfen und Build-Fehler sowie fehlende Schritte identifizieren. |
+
+| 31.10.26 | Copilot | Wie speichere ich den Filterzustand in der URL? Also Track, Konferenztag und Level als Query-Parameter abbilden, damit gefilterte Ansichten teilbar und wiederherstellbar sind? | Filterwerte teilbar machen und neuladen der URL ermöglichen. |

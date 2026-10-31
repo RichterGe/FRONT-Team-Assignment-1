@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
 import { useConferenceData } from '@/composables/useConferenceData'
 import { useSessionFilters } from '@/composables/useSessionFilters'
 import SessionFilters from '@/components/features/sessions/SessionFilters.vue'
 import SessionList from '@/components/features/sessions/SessionList.vue'
+
+const route = useRoute()
+const router = useRouter()
 
 const {
   sessions,
@@ -25,7 +29,43 @@ const days = computed(() => [...new Set(sessions.value.map((session) => session.
 
 const levels = computed(() => [...new Set(sessions.value.map((session) => session.level))].sort())
 
+let filtersInitialized = false
+
+function queryString(value: unknown): string | null {
+  if (typeof value === 'string') return value || null
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0] || null
+  return null
+}
+
+function readFiltersFromUrl() {
+  const track = queryString(route.query.track)
+  const day = queryString(route.query.day)
+  const level = queryString(route.query.level)
+
+  selectedTrack.value = tracks.value.some((item) => item.id === track) ? track : null
+  selectedDay.value = days.value.includes(day ?? '') ? day : null
+  selectedLevel.value = levels.value.includes(level ?? '') ? level : null
+}
+
+function writeFiltersToUrl() {
+  if (!filtersInitialized) return
+
+  const query: LocationQueryRaw = { ...route.query }
+  query.track = selectedTrack.value ?? undefined
+  query.day = selectedDay.value ?? undefined
+  query.level = selectedLevel.value ?? undefined
+
+  void router.replace({ query })
+}
+
+watch([selectedTrack, selectedDay, selectedLevel], writeFiltersToUrl)
+watch(() => route.query, readFiltersFromUrl)
+
 onMounted(() => {
+  readFiltersFromUrl()
+  filtersInitialized = true
+  writeFiltersToUrl()
+
   void loadData()
 })
 </script>
