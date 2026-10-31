@@ -2,6 +2,9 @@
 import type { ConferenceSession } from '@/composables/useConferenceData'
 import BaseCard from '../../base/BaseCard.vue'
 import { RouterLink } from 'vue-router'
+import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
+
+const { isBookmarked, toggleSession } = usePersonalProgramme()
 
 defineProps<{
   session: ConferenceSession
@@ -16,11 +19,25 @@ defineProps<{
         {{ session.day }} · {{ session.startTime }}–{{ session.endTime }} · {{ trackName }} ·
         {{ session.level }}
       </p>
-      <h3 class="session-card__title">
-        <RouterLink :to="{ name: 'session-detail', params: { id: session.id } }">
-          {{ session.title }}
-        </RouterLink>
-      </h3>
+      <div class="session-card__title-row">
+        <h3 class="session-card__title">
+          <RouterLink :to="{ name: 'session-detail', params: { id: session.id } }">
+            {{ session.title }}
+          </RouterLink>
+        </h3>
+        <button
+          type="button"
+          class="btn-bookmark"
+          :class="{ 'is-bookmarked': isBookmarked(session.id) }"
+          :aria-pressed="isBookmarked(session.id)"
+          :aria-label="
+            isBookmarked(session.id) ? 'Remove from My Programme' : 'Add to My Programme'
+          "
+          @click="toggleSession(session.id)"
+        >
+          {{ isBookmarked(session.id) ? '★' : '☆' }}
+        </button>
+      </div>
     </template>
     <p class="session-card__abstract">{{ session.abstract }}</p>
   </BaseCard>
@@ -32,8 +49,15 @@ defineProps<{
   font-size: var(--text-metadata);
 }
 
-.session-card__title {
+.session-card__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-8);
   margin-top: var(--space-8);
+}
+
+.session-card__title {
   font-size: var(--text-heading-small);
 }
 
@@ -55,5 +79,33 @@ defineProps<{
 
 .session-card__abstract {
   color: var(--color-text-secondary);
+}
+
+.btn-bookmark {
+  background: transparent;
+  color: var(--color-action-primary);
+  border: 1px solid var(--color-border);
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-bookmark:hover {
+  border-color: var(--color-action-primary);
+  background: var(--color-surface);
+}
+
+.btn-bookmark.is-bookmarked {
+  background: var(--color-action-primary);
+  border-color: var(--color-action-primary);
+  color: var(--color-action-primary-text);
 }
 </style>
