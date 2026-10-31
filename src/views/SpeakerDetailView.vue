@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import SpeakerCard from '@/components/features/speakers/SpeakerCard.vue'
 import { useConferenceData } from '@/composables/useConferenceData'
 
 const props = defineProps<{
@@ -36,16 +37,7 @@ const speakerSessions = computed(() => {
 		</nav>
 
 		<article v-if="speaker" class="speaker-profile__content">
-			<header class="speaker-profile__header">
-				<p class="speaker-profile__eyebrow">Speaker</p>
-				<h1>{{ speaker.name }}</h1>
-				<p class="speaker-profile__role">{{ speaker.title }} · {{ speaker.company }}</p>
-			</header>
-
-			<section aria-labelledby="speaker-bio-title">
-				<h2 id="speaker-bio-title">About</h2>
-				<p>{{ speaker.bio }}</p>
-			</section>
+			<SpeakerCard :speaker="speaker" />
 
 			<section aria-labelledby="speaker-sessions-title">
 				<h2 id="speaker-sessions-title">Sessions</h2>
@@ -92,24 +84,8 @@ const speakerSessions = computed(() => {
 	gap: var(--space-32);
 }
 
-.speaker-profile__header {
-	padding-bottom: var(--space-24);
-	border-bottom: 1px solid var(--color-border);
-}
-
-.speaker-profile__role,
 .speaker-profile__session-time {
 	color: var(--color-text-muted);
-}
-
-.speaker-profile__eyebrow {
-	font-size: var(--text-heading-section);
-}
-
-.speaker-profile__header h1 {
-	margin: var(--space-8) 0;
-	color: var(--color-hero-highlight);
-	font-size: var(--text-heading-page);
 }
 
 .speaker-profile__content section h2 {
