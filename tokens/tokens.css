@@ -14,7 +14,7 @@
   --cyan-400: #4BE4F2;
   --cyan-500: #18D7E8;
   --cyan-600: #0FB8C9;
-  --cyan-700: #007E91;
+  --cyan-700: #007A8C;
 
 
   /* Orange */
@@ -23,6 +23,7 @@
   --orange-500: #E97A1F;
   --orange-600: #C95E12;
   --orange-700: #9E470F;
+  --orange-900: #3A2416;
 
 
   /* Neutral grays */
@@ -44,7 +45,7 @@
   --space-48: 48px;
   --space-64: 64px;
 
-  /* Typohgraphy Scale */
+  /* Typography Scale */
   --font-size-xs: 0.75rem;   /* 12px */
   --font-size-sm: 0.875rem;  /* 14px */
   --font-size-md: 1rem;      /* 16px */
@@ -88,7 +89,7 @@
   --color-hero-title: var(--gray-050);
   --color-hero-highlight: var(--cyan-500);
 
-  --color-badge-featured-bg: #3A2416;
+  --color-badge-featured-bg: var(--orange-900);
   --color-badge-featured-text: var(--orange-300);
 
   --color-focus-ring: var(--cyan-500);

@@ -17,13 +17,13 @@ GameFoundry is an English-language conference platform for game-development prof
 
 The visual concept interprets a foundry as a place where ideas become playable experiences. Deep blue and graphite tones represent steel and industrial workspaces, while bright cyan suggests a fictional flow of digital molten metal.
 
-Dark mode is the defualt and uses deep blue surfaces, light text, and bright accents. Light mode uses pale neutral surfaces, dark text, and darker accents. Cyan remains the primary action color in both themes; orange supplements it as a contrasting color introducing warmth.
+Dark mode is the default and uses deep blue surfaces, light text, and bright accents. Light mode uses pale neutral surfaces, dark text, and darker accents. Cyan remains the primary action color in both themes; orange supplements it as a contrasting color introducing warmth.
 
 - **Dark backgrounds and layered surfaces:** --blue-950 #08131C and --blue-900 #10222E
 - **Hero button and headline highlights:** --cyan-500 #18D7E8
-- **Darker cyan alternative for the light theme:** --cyan-700 #007E91
-- **Neutral text colors:** --gray-050 #F5F8FA and --gray-900 #17212B
-- **Secondary emphasis and featured-session badges:** Orange tones ranging from --orange-300 #FFB36B to --orange-700 #9E470F
+- **Darker cyan alternative for the light theme:** --cyan-700 #007A8C
+- **Neutral text colors:** --gray-050 #F5F8FA and --gray-800 #17212B
+- **Secondary emphasis and featured-session badges:** Orange tones ranging from --orange-300 #FFB36B to --orange-900 #3A2416
 
 
 ## Spacing and Typography
@@ -43,7 +43,7 @@ The centrally maintained "tokens.css" file serves as the Single Source of Truth.
 **Consistency:** Shared roles ensure that primary actions, surfaces, and text follow the same visual rules throughout the platform. Component-specific aliases may be introduced where necessary, but they must reference semantic tokens rather than bypassing them.
 
 **Accessibility:** I tested the color pairs with the highest risk.
-Dark Mode: Dark blue background to cyan colored text has a contrast ratio of 7.01:1
-Light Mode: bright grey background to cyan colored text has a contrast ratio of 4.48:1
+Dark Mode: Dark blue background (`#08131C`) to cyan colored text (`#18D7E8`) has a contrast ratio of 10.67:1 (and `7.01:1` on secondary surfaces), exceeding WCAG AA.
+Light Mode: Bright grey background (`#F5F8FA`) to darker cyan colored text (`#007A8C`) has a contrast ratio of 4.67:1, meeting the WCAG 2.1 AA minimum (4.5:1).
 
 

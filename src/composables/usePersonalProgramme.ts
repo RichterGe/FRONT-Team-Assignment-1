@@ -10,7 +10,7 @@ let isInitialized = false
 export function usePersonalProgramme() {
   const { sessions, isLoading, loadData } = useConferenceData()
 
-  // 1. Rehydration: Load stored IDs on initial client start
+  // 1. Rehydration & Synchronization: Load stored IDs once and register a single localStorage watcher
   if (!isInitialized && typeof window !== 'undefined') {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
@@ -21,11 +21,7 @@ export function usePersonalProgramme() {
       console.error('Failed to parse saved sessions from localStorage:', err)
       savedSessionIds.value = []
     }
-    isInitialized = true
-  }
 
-  // 2. Synchronization: Keep localStorage in sync with reactive state
-  if (typeof window !== 'undefined') {
     watch(
       savedSessionIds,
       (newIds) => {
@@ -33,13 +29,15 @@ export function usePersonalProgramme() {
       },
       { deep: true },
     )
+
+    isInitialized = true
   }
 
-  // 3. Computed view: Reconstruct full session objects
+  // 2. Computed view: Reconstruct full session objects sorted by day and start time
   const mySessions = computed<ConferenceSession[]>(() => {
     return sessions.value
       .filter((session) => savedSessionIds.value.includes(session.id))
-      .sort((a, b) => a.startTime.localeCompare(b.startTime))
+      .sort((a, b) => a.day.localeCompare(b.day) || a.startTime.localeCompare(b.startTime))
   })
 
   // Action methods
