@@ -1,7 +1,7 @@
 # State-Management-Konzept: „Mein Programm“
 
 ## 1. Modellierung und Laden des geteilten Datensatzes
-Für die Verwaltung der statischen Konferenzdaten nutzen wir ein dediziertes Vue Composable namens `useConferenceData()` Da der Datensatz (`conference-data.json`) für alle User identisch ist und nur gelesen wird, wird er beim initialen Laden der Applikation asynchron abgerufen. Die Daten werden in einem globalen, reaktiven State (via Vue 3 Composition API `ref` oder `shallowRef`) vorgehalten. Dadurch müssen die JSON-Daten nur einmalig über das Netzwerk geladen werden und stehen anschließend allen Komponenten der Applikation verzögerungsfrei zur Verfügung.
+Für die Verwaltung der statischen Konferenzdaten nutzen wir ein dediziertes Vue Composable namens `useConferenceData()`. Da der Datensatz (`src/data/conference-data.json`) für alle User identisch ist und nur gelesen wird, wird er über das Composable zentral eingebunden und in einem globalen, reaktiven Modul-State (via Vue 3 Composition API `ref`) vorgehalten. Dadurch müssen die JSON-Daten nur einmalig initialisiert bzw. über `loadData()` aktualisiert werden und stehen anschließend allen Komponenten der Applikation sowie dem SSG-Build verzögerungsfrei zur Verfügung.
 
 ## 2. Personalisierter State und Datenstruktur
 Für das individuelle Nutzerprogramm implementieren wir ein zweites Composable: `usePersonalProgramme()`.
@@ -17,7 +17,7 @@ Die Reaktivität über mehrere Komponenten hinweg wird durch den geteilten State
 Beim Neuladen der Seite (Page Reload) greift der Rehydration-Mechanismus:
 1. Das Composable `usePersonalProgramme()` wird initialisiert.
 2. Es liest synchron den gespeicherten ID-String aus dem `localStorage` und parst ihn.
-3. Gleichzeitig lädt `useConferenceData()` asynchron die `conference-data.json`.
+3. Gleichzeitig stellt `useConferenceData()` die Konferenzdaten aus `conference-data.json` bereit.
 4. Sobald beide Datenquellen verfügbar sind, löst die `computed` Property aus und stellt das vollständige personalisierte Programm wieder her.
 
 ## Datenfluss- und Sequenzdiagramm (AI-generiert)
@@ -38,10 +38,11 @@ sequenceDiagram
     LS-->>UPP: Return ['id-1', 'id-2'] (Rehydration)
     
     B->>UCD: App initialisiert
-    UCD->>JSON: Fetch GET conference-data.json
+    UCD->>JSON: Lade conference-data.json
     JSON-->>UCD: Return vollständiges Array (Objekte)
     
     C->>UPP: Fordert "Mein Programm" an
     UPP->>UCD: Gleicht IDs mit Basis-Daten ab
     UCD-->>UPP: Return vollständige Session-Objekte
     UPP-->>C: Rehydrierte Session-Liste rendern
+```

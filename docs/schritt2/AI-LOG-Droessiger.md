@@ -1,13 +1,8 @@
-Jede Person führt ein eigenes AI-LOG über den gesamten Schritt — live
-mitschreiben, nicht nachträglich rekonstruieren.
-Pro Eintrag: Datum, Tool (z. B. Claude Code, Copilot, ChatGPT), Prompt im Wortlaut,
-Zweck (warum dieser Prompt, was sollte er lösen?).
-
+# AI-LOG — Eric Drößiger
 
 | Datum | Tool | Prompt | Zweck |
 |:------|:-----|:-------|:------|
-
-|30.10.26 | Copilot | Prüfe: Gibt es für die Session Übersicht zusätzliche Möglichkleiten die aktuellen Risiken zu verhindern oder zu minimieren? | Strategien für Risiken verbessern
+| 30.10.26 | Copilot | Prüfe: Gibt es für die Session Übersicht zusätzliche Möglichkleiten die aktuellen Risiken zu verhindern oder zu minimieren? | Strategien für Risiken verbessern |
 
 | 30.10.26 | Copilot | Womit fange ich am besten für Aufgabe B und D an und wie? damit ich wieder ins thema reinkomme | Wiedereinstieg in die Aufgaben sowie B und D planen |
 
