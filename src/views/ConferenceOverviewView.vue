@@ -2,6 +2,7 @@
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
 import { useConferenceData } from '@/composables/useConferenceData'
+import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
 import { useSessionFilters } from '@/composables/useSessionFilters'
 import SessionFilters from '@/components/features/sessions/SessionFilters.vue'
 import SessionList from '@/components/features/sessions/SessionList.vue'
@@ -10,6 +11,7 @@ const route = useRoute()
 const router = useRouter()
 
 const { sessions, tracks, isLoading, error, loadData } = useConferenceData()
+const { savedSessionIds, toggleSession } = usePersonalProgramme()
 
 const { selectedTrack, selectedDay, selectedLevel, filteredSessions, clearFilters } =
   useSessionFilters(sessions)
@@ -86,7 +88,13 @@ onMounted(() => {
       <p v-if="filteredSessions.length === 0" class="overview__empty">
         No sessions match these filters.
       </p>
-      <SessionList v-else :sessions="filteredSessions" :tracks="tracks" />
+      <SessionList
+        v-else
+        :sessions="filteredSessions"
+        :tracks="tracks"
+        :bookmarked-ids="savedSessionIds"
+        @toggle-bookmark="toggleSession"
+      />
     </template>
   </section>
 </template>

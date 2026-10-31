@@ -2,13 +2,15 @@
 import type { ConferenceSession } from '@/composables/useConferenceData'
 import BaseCard from '../../base/BaseCard.vue'
 import { RouterLink } from 'vue-router'
-import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
-
-const { isBookmarked, toggleSession } = usePersonalProgramme()
 
 defineProps<{
   session: ConferenceSession
   trackName: string
+  isBookmarked: boolean
+}>()
+
+const emit = defineEmits<{
+  toggleBookmark: [sessionId: string]
 }>()
 </script>
 
@@ -28,14 +30,12 @@ defineProps<{
         <button
           type="button"
           class="btn-bookmark"
-          :class="{ 'is-bookmarked': isBookmarked(session.id) }"
-          :aria-pressed="isBookmarked(session.id)"
-          :aria-label="
-            isBookmarked(session.id) ? 'Remove from My Programme' : 'Add to My Programme'
-          "
-          @click="toggleSession(session.id)"
+          :class="{ 'is-bookmarked': isBookmarked }"
+          :aria-pressed="isBookmarked"
+          :aria-label="isBookmarked ? 'Remove from My Programme' : 'Add to My Programme'"
+          @click="emit('toggleBookmark', session.id)"
         >
-          {{ isBookmarked(session.id) ? '★' : '☆' }}
+          {{ isBookmarked ? '★' : '☆' }}
         </button>
       </div>
     </template>

@@ -26,10 +26,10 @@ Wir verwenden eine **schichtenbasierte Komponentenstruktur mit fachlichen Untero
 
 | Schicht | Verantwortung | Beispiele |
 |---|---|---|
-| **Base/UI** | Generische UI-Elemente ohne Wissen über Konferenzdaten | `BaseButton`, `BaseCard`, `BaseInput`, `BaseSelect` |
-| **Feature** | Konferenzbezogene Darstellung und Interaktionen | `SessionCard`, `SessionFilters`, `SessionList`, `ProgrammeToggle` |
-| **Layout** | Seitenübergreifende Struktur und Navigation, ohne fachliche Filter- oder Programmlogik | `AppHeader`, `AppFooter`, `AppShell` |
-| **Seiten (Views)** | Setzen Komponenten zusammen und koordinieren Daten sowie Aktionen | `ConferenceOverviewView` |
+| **Base/UI** | Generische UI-Elemente ohne Wissen über Konferenzdaten | `BaseCard` |
+| **Feature** | Konferenzbezogene Darstellung und Interaktionen | `SessionCard`, `SessionFilters`, `SessionList`, `SpeakerCard` |
+| **Layout** | Seitenübergreifende Struktur und Navigation, ohne fachliche Filter- oder Programmlogik | `App.vue` (Header, Navigation, Theme-Switch, Content-Shell) |
+| **Seiten (Views)** | Setzen Komponenten zusammen und koordinieren Daten sowie Aktionen | `ConferenceOverviewView`, `SessionDetailView`, `SpeakerDetailView`, `PersonalProgrammeView` |
 
 
 Feature-Komponenten dürfen Base-Komponenten verwenden. Base-Komponenten hängen weder von Feature-Komponenten noch von konferenzbezogenen Composables ab. Alle Komponenten verwenden die semantischen Design Tokens aus Teil A.
@@ -37,18 +37,18 @@ Feature-Komponenten dürfen Base-Komponenten verwenden. Base-Komponenten hängen
 
 ### Composition und Datenfluss
 
-Wir setzen Komponenten über Props und Slots zusammen. `BaseCard` stellt einen generischen Rahmen bereit, den `SessionCard` mit Session-Inhalten füllt.
+Wir setzen Komponenten über Props und Slots zusammen. `BaseCard` stellt einen generischen Rahmen bereit, den `SessionCard` und `SpeakerCard` mit spezifischen Inhalten füllen.
 
 Wir verwenden den Ein-Weg-Datenfluss **„Props nach unten, Events nach oben“**:
 
 
 | Komponente | Aufgabe und Datenfluss |
 |---|---|
-| `SessionFilters` | Erhält Filterwerte und meldet Änderungen über `update:…`-Events beziehungsweise `v-model`. |
-| `SessionList` | Erhält die anzuzeigenden Sessions und die benötigten Auswahlinformationen. |
-| `SessionCard` | Erhält Session-Daten und Auswahlstatus. |
-| `ProgrammeToggle` | Erhält den Auswahlstatus und meldet die gewünschte Programmänderung als Event. |
-| Zuständige View | Empfängt die Programmänderung und ruft die entsprechende Aktion in `usePersonalProgramme()` auf. |
+| `SessionFilters` | Erhält Filterwerte und meldet Änderungen über `update:…`-Events beziehungsweise `v-model` sowie `clear`. |
+| `SessionList` | Erhält die anzuzeigenden Sessions, Tracks und gespeicherten Session-IDs (`bookmarkedIds`) und leitet `toggleBookmark`-Events nach oben weiter. |
+| `SessionCard` | Erhält Session-Daten, Track-Namen und den Auswahlstatus (`isBookmarked`) und emittiert `toggleBookmark` bei Klick auf den Bookmark-Button. |
+| `SpeakerCard` | Erhält ein `ConferenceSpeaker`-Objekt über Props und stellt Name, Rolle, Firma und Biografie in einer `BaseCard` dar. |
+| Zuständige View | Empfängt die Programmänderung (`@toggle-bookmark`) und ruft die entsprechende Aktion (`toggleSession`) in `usePersonalProgramme()` auf. |
 
 Zwischenkomponenten leiten Programm-Events bei Bedarf bis zur zuständigen View weiter. Darstellungskomponenten verändern weder übergebene Session-Objekte noch die persönliche Programmliste direkt.
 
@@ -76,32 +76,33 @@ Das [State-Management-Konzept](03-state-management-konzept.md) definiert den gem
 Die folgende Struktur basiert auf dem in ADR-0002 vorgeschlagenen Setup:
 
 ```
-public/
-└── conference-data.json
-
 src/
+├── assets/
+│   ├── base.css
+│   └── main.css
 ├── components/
 │   ├── base/
-│   │   ├── BaseCard.vue
-│   ├── features/
-│   │   ├── sessions/
-│   │   │   ├── SessionCard.vue
-│   │   │   ├── SessionFilters.vue
-│   │   │   └── SessionList.vue
-│   │   └── programme/
-│   │       └── ProgrammeToggle.vue
+│   │   └── BaseCard.vue
+│   └── features/
+│       ├── sessions/
+│       │   ├── SessionCard.vue
+│       │   ├── SessionFilters.vue
+│       │   └── SessionList.vue
+│       └── speakers/
+│           └── SpeakerCard.vue
 ├── composables/
 │   ├── useConferenceData.ts
 │   ├── usePersonalProgramme.ts
 │   └── useSessionFilters.ts
-├── types/
-│   └── conference.ts
+├── data/
+│   └── conference-data.json
 ├── router/
 │   └── index.ts
 ├── views/
-│   └── ConferenceOverviewView.vue
-├── assets/
-│   └── styles/
+│   ├── ConferenceOverviewView.vue
+│   ├── PersonalProgrammeView.vue
+│   ├── SessionDetailView.vue
+│   └── SpeakerDetailView.vue
 ├── App.vue
 └── main.ts
 
@@ -109,31 +110,31 @@ tokens/
 └── tokens.css
 
 docs/
-└── schritt1/
+├── schritt1/
+└── schritt2/
 ```
 
 ### Komponentenübersicht
 
-Die Übersicht zeigt exemplarisch die Konferenzübersicht. 
-`AppShell` stellt den gemeinsamen Rahmen bereit.
-`RouterView` zeigt die aktuelle Seite im Inhaltsbereich an.
+Die Übersicht zeigt die Komponentenstruktur der Anwendung. 
+`App.vue` stellt den gemeinsamen Layout-Rahmen (Header, Navigation, Theme-Umschalter) bereit.
+`RouterView` zeigt die jeweils aktive View im Inhaltsbereich an.
 
 
 
 ```
-App
-└── AppShell
-    ├── AppHeader
-    ├── RouterView → ConferenceOverviewView
+App (App-Shell, Header & Navigation)
+└── RouterView
+    ├── ConferenceOverviewView
     │   ├── SessionFilters
-    │   │   ├── BaseInput
-    │   │   └── BaseSelect
     │   └── SessionList
     │       └── SessionCard
     │           └── BaseCard
-    │               └── ProgrammeToggle
-    │                   └── BaseButton
-    └── AppFooter
+    ├── SessionDetailView
+    ├── SpeakerDetailView
+    │   └── SpeakerCard
+    │       └── BaseCard
+    └── PersonalProgrammeView
 ```
 
 
