@@ -17,9 +17,7 @@ const { sessions, speakers, tracks, rooms, isLoading, error, loadData } = useCon
 const { isBookmarked, toggleSession } = usePersonalProgramme()
 
 onMounted(async () => {
-  if (sessions.value.length === 0) {
-    await loadData()
-  }
+  await loadData()
 })
 
 const session = computed(() => sessions.value.find((s) => s.id === props.id))

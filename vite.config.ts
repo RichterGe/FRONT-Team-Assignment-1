@@ -1,9 +1,9 @@
+/// <reference types="vite-ssg" />
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import type {} from 'vite-ssg'
 
 import conferenceData from './src/data/conference-data.json' with { type: 'json' }
 
@@ -29,7 +29,11 @@ export default defineConfig({
         (speaker) => `/speakers/${speaker.id}`,
       )
 
-      return [...staticRoutes, ...speakerRoutes]
+      const sessionRoutes = conferenceData.sessions.map(
+        (session) => `/sessions/${session.id}`,
+      )
+
+      return [...staticRoutes, ...speakerRoutes, ...sessionRoutes]
     },
   },
 })

@@ -36,11 +36,7 @@ const { savedSessionIds } = usePersonalProgramme()
       <RouterView />
     </main>
 
-    <button
-      @click="toggleTheme"
-      class="button-primary"
-      :aria-pressed="currentTheme === 'dark'"
-    >
+    <button @click="toggleTheme" class="button-primary" :aria-pressed="currentTheme === 'dark'">
       Switch to {{ currentTheme === 'light' ? 'dark' : 'light' }} Mode
     </button>
   </div>
@@ -78,7 +74,7 @@ const { savedSessionIds } = usePersonalProgramme()
   transition: color 0.2s ease;
 }
 
-.nav-link:hover{
+.nav-link:hover {
   color: var(--color-action-primary);
 }
 

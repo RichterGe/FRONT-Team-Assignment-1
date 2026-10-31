@@ -9,21 +9,10 @@ import SessionList from '@/components/features/sessions/SessionList.vue'
 const route = useRoute()
 const router = useRouter()
 
-const {
-  sessions,
-  tracks,
-  isLoading,
-  error,
-  loadData,
-} = useConferenceData()
+const { sessions, tracks, isLoading, error, loadData } = useConferenceData()
 
-const {
-  selectedTrack,
-  selectedDay,
-  selectedLevel,
-  filteredSessions,
-  clearFilters,
-} = useSessionFilters(sessions)
+const { selectedTrack, selectedDay, selectedLevel, filteredSessions, clearFilters } =
+  useSessionFilters(sessions)
 
 const days = computed(() => [...new Set(sessions.value.map((session) => session.day))].sort())
 
@@ -111,13 +100,8 @@ onMounted(() => {
   margin-bottom: var(--space-24);
 }
 
-.overview__eyebrow,
-.session-list__meta {
-  color: var(--color-text-muted);
-  font-size: var(--text-metadata);
-}
-
 .overview__eyebrow {
+  color: var(--color-text-muted);
   font-size: var(--text-heading-section);
 }
 
@@ -137,7 +121,4 @@ onMounted(() => {
   border-left: 3px solid var(--color-accent-warm);
   background: var(--color-surface);
 }
-
 </style>
-
-
