@@ -19,6 +19,9 @@ const { savedSessionIds } = usePersonalProgramme()
         <RouterLink to="/" class="brand-link">
           <h1>GameFoundry</h1>
         </RouterLink>
+          <button @click="toggleTheme" class="button-primary" :aria-pressed="currentTheme === 'dark'">
+            {{ currentTheme === 'light' ? 'Dark' : 'Light' }} Mode
+          </button>
         <nav class="nav-links">
           <RouterLink to="/" class="nav-link">Overview</RouterLink>
           <RouterLink to="/my-programme" class="nav-link">
@@ -35,10 +38,6 @@ const { savedSessionIds } = usePersonalProgramme()
     <main class="app-content">
       <RouterView />
     </main>
-
-    <button @click="toggleTheme" class="button-primary" :aria-pressed="currentTheme === 'dark'">
-      Switch to {{ currentTheme === 'light' ? 'dark' : 'light' }} Mode
-    </button>
   </div>
 </template>
 
