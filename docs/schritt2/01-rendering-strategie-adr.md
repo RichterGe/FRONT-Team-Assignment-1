@@ -81,23 +81,21 @@ die genaue Uhrzeit) jedoch potenziell veränderlich, falls es auf der Konferenz 
 Setup oder Meta-Frameworks (wie Nuxt), was unser aktuelles Vue+Vite-Grundgerüst übersteigt.
 *   **SSG (Static Site Generation) pur:** Exzellente Performance und SEO, aber out-of-sync, wenn sich Zeiten 
 ändern und kein neuer Build angestoßen wird.
-*   **SSG mit anschließender CSR-Aktualisierung (Stale-While-Revalidate-Pattern):** Die Seite wird statisch generiert 
-(SEO-freundlich), aber sobald das JavaScript im Browser geladen ist (Hydration), prüft der Client die Daten neu.
+*   **SSG mit anschließender CSR-Hydration:** Die Seite wird statisch generiert (SEO-freundlich) und im Browser 
+hydriert. Die Daten stammen weiterhin aus der beim Build eingebundenen JSON-Datei; zur Laufzeit werden sie nicht neu abgefragt.
 
 ### Entscheidung
-Wir entscheiden uns für **SSG (Static Site Generation) in Kombination mit einer clientseitigen Aktualisierung (CSR)**
-zur Laufzeit.
+Wir entscheiden uns für **SSG (Static Site Generation) mit anschließender CSR-Hydration**. Die Session-Daten werden 
+beim Build aus der JSON-Datei eingebunden. Änderungen am Programm werden erst nach einem erneuten Build und Deployment sichtbar.
 
 ### Konsequenzen
-*   **Positiv:** Diese Lösung ist in unserem bestehenden Vite-Setup mit minimalem Aufwand umsetzbar. Der Nutzer und 
-Suchmaschinen erhalten sofort das voll gerenderte HTML (Titel, Abstract) ohne Wartezeit auf ein leeres Div. 
-Sobald die App hydriert ist, lädt das `useConferenceData()`-Composable die aktuellen Daten im Client nach, sodass Raum- 
-oder Zeitänderungen sofort angewendet werden.
-*   **Negativ:** Es entsteht ein leichter Overhead, da der Client die JSON-Datei beim Seitenaufruf neu abfragt, obwohl 
-die statische Seite bereits existiert.
-*   **Risiken:** Nutzer könnten für den Bruchteil einer Sekunde veraltete Zeiten (die statisch generierten) sehen, bevor 
-das JavaScript die Seite aktualisiert (Flicker-Effekt). Für unseren Anwendungsfall ist dieser Kompromiss aus Performance, 
-SEO und Einfachheit jedoch vertretbar.
+*   **Positiv:** Diese Lösung ist in unserem bestehenden Vite-Setup mit minimalem Aufwand umsetzbar. Nutzer und 
+Suchmaschinen erhalten sofort das voll gerenderte HTML (Titel, Abstract) ohne Wartezeit auf ein leeres Div. Die Hydration 
+macht die Seiten interaktiv, ohne dass dafür eine serverseitige Laufzeitumgebung benötigt wird.
+*   **Negativ:** Änderungen an Session-Daten, etwa an Raum oder Uhrzeit, werden erst sichtbar, nachdem ein neuer Build 
+erstellt und deployed wurde.
+*   **Risiken:** Das Programm kann zwischen zwei Deployments veraltet sein. Da der Client dieselben beim Build 
+eingebundenen Daten verwendet, gibt es keine Aktualisierung oder einen Flicker-Effekt durch ein erneutes Laden der JSON-Datei.
 
 ---
 
