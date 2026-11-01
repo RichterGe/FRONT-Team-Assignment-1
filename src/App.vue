@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, RouterLink } from 'vue-router'
 import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
 
-// Theme Button logic - temporary placement until the next step
-const currentTheme = ref('dark')
+// Theme Button logic
+const currentTheme = ref<'dark' | 'light'>('dark')
+
+const isDarkTheme = computed(() => currentTheme.value === 'dark')
+const nextThemeLabel = computed(() => (isDarkTheme.value ? 'Switch to light mode' : 'Switch to dark mode'))
+
 const toggleTheme = () => {
   currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
 }
@@ -19,9 +23,9 @@ const { savedSessionIds } = usePersonalProgramme()
         <RouterLink to="/" class="brand-link">
           <h1>GameFoundry</h1>
         </RouterLink>
-          <button @click="toggleTheme" class="button-primary" :aria-pressed="currentTheme === 'dark'">
-            {{ currentTheme === 'light' ? 'Dark' : 'Light' }} Mode
-          </button>
+        <button type="button" class="button-primary" :aria-label="nextThemeLabel" :aria-pressed="isDarkTheme" @click="toggleTheme">
+          {{ isDarkTheme ? 'Light' : 'Dark' }} Mode
+        </button>
         <nav class="nav-links">
           <RouterLink to="/" class="nav-link">Overview</RouterLink>
           <RouterLink to="/my-programme" class="nav-link">
