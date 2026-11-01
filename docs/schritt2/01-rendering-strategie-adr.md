@@ -49,10 +49,7 @@ Vorschaubilder und Biografien problemlos auslesen, da sie nicht auf die Ausführ
 ## 2. Session-Übersicht mit Filterung (Federführend: Eric Drößiger / Review: Georg Richter)
 
 ### Kontext
-Die Übersichtsseite listet alle (20) Sessions auf und ermöglicht das Filtern nach Track, Tag und Level
-(UND-Verknüpfung). Die Daten werden zentral über `useConferenceData()` bezogen. 
-Da dies die Haupteinstiegsseite der Plattform ist, ist die anfängliche Ladezeit sowie die Indexierbarkeit für SEO äußerst wichtig. 
-Gleichzeitig erwarten die Nutzer, dass die Filter sofort und ohne sichtbare Ladeunterbrechung reagieren, wenn sie Tracks oder Tage anklicken.
+Die Übersichtsseite zeigt 20 Sessions und filtert nach Track, Tag und Level (UND-Verknüpfung). Die Daten kommen aus `useConferenceData()`. Als Haupteinstieg sind kurze Ladezeit und SEO wichtig; Filter sollen nach einem Klick ohne Unterbrechung reagieren.
 
 ### Betrachtete Optionen
 *   **Reines SSR (Server-Side Rendering):** Die Seite und jeder Filter-Status wird vom Server generiert.
@@ -64,11 +61,9 @@ Wir entscheiden uns für den hybriden Ansatz:
 **SSG für den initialen Load, danach vollständige Client-Side Filterung (CSR)**.
 
 ### Konsequenzen
-*   **Positiv:** Der Server sendet das komplett geformte HTML der Gesamtübersicht. Der Nutzer sieht das Programm sofort, was die wahrgenommene Ladezeit drastisch verbessert. Nach der Hydration (dem "Aufwachen" der Vue-App) übernimmt das JavaScript. Da der Datensatz mit 20 Sessions sehr klein ist, ist das Filtern im lokalen Browser-Speicher um ein Vielfaches performanter als jeder Netzwerk-Request an einen Server.
+*   **Positiv:** Vollständiges HTML liefert die Übersicht sofort aus. Nach der Hydration filtert der Browser die 20 Sessions schneller als ein Server-Request.
 *   **Negativ:** Das gesamte JavaScript-Bundle (die Logik der Filter) muss im Hintergrund heruntergeladen und ausgeführt (hydriert) werden, bevor die Filter-Buttons tatsächlich klickbar und interaktiv sind.
-*   **Risiken:** Bei extrem langsamen Verbindungen könnte es vorkommen, dass der Nutzer die Liste sieht und einen Filter klickt, bevor die Hydration abgeschlossen ist. Da unsere Logik jedoch minimal ist, betrachten wir dieses Risiko als gering.
-
-    * **Risikominimierung:** Die Filterlogik wird direkt mit der initialen Seite geladen und die Hydration auf geringe Laufzeit optimiert. Bis die Filter interaktiv sind, werden Eingaben entweder kurz gepuffert oder die Filter-Controls als noch nicht verfügbar gekennzeichnet. Die Filterauswahl wird zusätzlich in der URL abgebildet, damit gefilterte Ansichten wiederherstellbar und teilbar sind.
+*   **Risiken und Minimierung:** Bei langsamen Verbindungen kann ein Filterklick vor abgeschlossener Hydration ins Leere laufen. Die schlanke Filterlogik wird früh geladen; Controls bleiben bis zur Interaktivität deaktiviert. Die URL hält die Auswahl wiederherstellbar und teilbar.
 
 ---
 

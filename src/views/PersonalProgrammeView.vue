@@ -12,7 +12,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="my-programme-view">
+  <div class="my-programme-view">
     <header class="dashboard-header card">
       <h1>My Programme</h1>
       <p class="subtitle">Your bookmarked sessions</p>
@@ -61,7 +61,7 @@ onMounted(async () => {
         </div>
       </article>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

@@ -26,7 +26,7 @@ const speakerSessions = computed(() => {
 </script>
 
 <template>
-  <main class="speaker-profile">
+  <div class="speaker-profile">
     <nav class="speaker-profile__breadcrumb" aria-label="Breadcrumb">
       <RouterLink :to="{ name: 'conference-overview' }">Back to sessions</RouterLink>
     </nav>
@@ -54,7 +54,7 @@ const speakerSessions = computed(() => {
       <h1 id="not-found-title">Speaker not found</h1>
       <p>No speaker with ID “{{ props.id }}” exists.</p>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>
