@@ -3,6 +3,8 @@
 Next Generation Web Frontends Team Assignment 
 by Georg Richter & Eric Drößiger
 
+## Development Setup
+
 ### Step 1
 
 ```sh
