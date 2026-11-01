@@ -31,3 +31,5 @@
 | 31.10.26 | Copilot | Wie speichere ich den Filterzustand in der URL? Also Track, Konferenztag und Level als Query-Parameter abbilden, damit gefilterte Ansichten teilbar und wiederherstellbar sind? | Filterwerte teilbar machen und neuladen der URL ermöglichen. |
 
 | 01.11.26 | Copilot | Prüfe das Projekt auf ungenutzte oder veraltete CSS die nicht mehr aus dem Code referenziert werden.  | ungenutzte CSS-Styles, veraltete Tokens und Wiederkehrende Farb-Definitionen identifizieren und bereinigen für eine saubere Single-Source-of-Truth im Design-System |
+
+| 01.11.26 | Copilot | Verbessere den Theme-Switch in Vue so, dass aria-label und aria-pressed semantisch konsistent sind und die Accessibility besser ist, ohne die Implementierung zu komplizieren.  | Theme-Toggle für Screenreader und Accessibility verbessern |
