@@ -1,7 +1,7 @@
+import '../tokens/tokens.css'
 import './assets/main.css'
 
 import { ViteSSG } from 'vite-ssg'
-import '../tokens/tokens.css'
 import App from './App.vue'
 import { routes } from './router'
 
