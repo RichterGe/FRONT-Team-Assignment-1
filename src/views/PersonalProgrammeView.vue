@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
 
-const { mySessions, isLoading, loadData, removeSession } = usePersonalProgramme()
+const { mySessions, isHydrated, isLoading, loadData, removeSession } = usePersonalProgramme()
 
 onMounted(async () => {
   // Ensure base conference data is fetched
@@ -19,7 +19,7 @@ onMounted(async () => {
     </header>
 
     <!-- State 1: CSR Hydration / Loading -->
-    <div v-if="isLoading" class="card state-loading">
+    <div v-if="!isHydrated || isLoading" class="card state-loading">
       <p>Loading your programme...</p>
     </div>
 

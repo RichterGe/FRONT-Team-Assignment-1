@@ -8,6 +8,7 @@ defineProps<{
   selectedTrack: string | null
   selectedDay: string | null
   selectedLevel: string | null
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -39,7 +40,7 @@ function updateLevel(event: Event) {
   <form class="filters" aria-label="Filter sessions" @submit.prevent>
     <label class="filters__field">
       <span>Track</span>
-      <select :value="selectedTrack" @change="updateTrack">
+      <select :value="selectedTrack" :disabled="disabled" @change="updateTrack">
         <option value="">All tracks</option>
         <option v-for="track in tracks" :key="track.id" :value="track.id">
           {{ track.name }}
@@ -49,7 +50,7 @@ function updateLevel(event: Event) {
 
     <label class="filters__field">
       <span>Conference day</span>
-      <select :value="selectedDay" @change="updateDay">
+      <select :value="selectedDay" :disabled="disabled" @change="updateDay">
         <option value="">All days</option>
         <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
       </select>
@@ -57,13 +58,15 @@ function updateLevel(event: Event) {
 
     <label class="filters__field">
       <span>Level</span>
-      <select :value="selectedLevel" @change="updateLevel">
+      <select :value="selectedLevel" :disabled="disabled" @change="updateLevel">
         <option value="">All levels</option>
         <option v-for="level in levels" :key="level" :value="level">{{ level }}</option>
       </select>
     </label>
 
-    <button class="filters__clear" type="button" @click="emit('clear')">Clear filters</button>
+    <button class="filters__clear" type="button" :disabled="disabled" @click="emit('clear')">
+      Clear filters
+    </button>
   </form>
 </template>
 
@@ -107,7 +110,13 @@ function updateLevel(event: Event) {
   cursor: pointer;
 }
 
-.filters__clear:hover {
+.filters__clear:hover:not(:disabled) {
   border-color: var(--color-accent-warm);
+}
+
+.filters__field select:disabled,
+.filters__clear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

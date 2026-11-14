@@ -1,36 +1,51 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
 import { useConferenceData, type ConferenceSession } from './useConferenceData'
 
 const STORAGE_KEY = 'gamefoundry_my_programme'
 
 // Shared module-level reactive state across components
 const savedSessionIds = ref<string[]>([])
+const isHydrated = ref<boolean>(false)
 let isInitialized = false
+
+function rehydrateFromStorage() {
+  if (isInitialized || typeof window === 'undefined') return
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        savedSessionIds.value = parsed.filter((id): id is string => typeof id === 'string')
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse saved sessions from localStorage:', err)
+    savedSessionIds.value = []
+  }
+
+  watch(
+    savedSessionIds,
+    (newIds) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newIds))
+    },
+    { deep: true },
+  )
+
+  isInitialized = true
+  isHydrated.value = true
+}
 
 export function usePersonalProgramme() {
   const { sessions, isLoading, loadData } = useConferenceData()
 
-  // 1. Rehydration & Synchronization: Load stored IDs once and register a single localStorage watcher
+  // 1. Rehydration & Synchronization: Defer localStorage read until client mount to avoid SSG hydration mismatches
   if (!isInitialized && typeof window !== 'undefined') {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        savedSessionIds.value = JSON.parse(raw)
-      }
-    } catch (err) {
-      console.error('Failed to parse saved sessions from localStorage:', err)
-      savedSessionIds.value = []
+    if (getCurrentInstance()) {
+      onMounted(rehydrateFromStorage)
+    } else {
+      rehydrateFromStorage()
     }
-
-    watch(
-      savedSessionIds,
-      (newIds) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newIds))
-      },
-      { deep: true },
-    )
-
-    isInitialized = true
   }
 
   // 2. Computed view: Reconstruct full session objects sorted by day and start time
@@ -46,6 +61,7 @@ export function usePersonalProgramme() {
   }
 
   const toggleSession = (sessionId: string) => {
+    rehydrateFromStorage()
     const index = savedSessionIds.value.indexOf(sessionId)
     if (index === -1) {
       savedSessionIds.value.push(sessionId)
@@ -55,12 +71,14 @@ export function usePersonalProgramme() {
   }
 
   const removeSession = (sessionId: string) => {
+    rehydrateFromStorage()
     savedSessionIds.value = savedSessionIds.value.filter((id) => id !== sessionId)
   }
 
   return {
     savedSessionIds,
     mySessions,
+    isHydrated,
     isLoading,
     loadData,
     isBookmarked,

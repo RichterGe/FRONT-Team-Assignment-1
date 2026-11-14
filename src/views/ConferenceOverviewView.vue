@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
 import { useConferenceData } from '@/composables/useConferenceData'
 import { usePersonalProgramme } from '@/composables/usePersonalProgramme'
@@ -10,11 +10,13 @@ import SessionList from '@/components/features/sessions/SessionList.vue'
 const route = useRoute()
 const router = useRouter()
 
-const { sessions, tracks, isLoading, error, loadData } = useConferenceData()
+const { sessions, tracks, isLoading, error } = useConferenceData()
 const { savedSessionIds, toggleSession } = usePersonalProgramme()
 
 const { selectedTrack, selectedDay, selectedLevel, filteredSessions, clearFilters } =
   useSessionFilters(sessions)
+
+const isHydrated = ref(false)
 
 const days = computed(() => [...new Set(sessions.value.map((session) => session.day))].sort())
 
@@ -56,8 +58,7 @@ onMounted(() => {
   readFiltersFromUrl()
   filtersInitialized = true
   writeFiltersToUrl()
-
-  void loadData()
+  isHydrated.value = true
 })
 </script>
 
@@ -75,6 +76,7 @@ onMounted(() => {
         :tracks="tracks"
         :days="days"
         :levels="levels"
+        :disabled="!isHydrated"
         v-model:selected-track="selectedTrack"
         v-model:selected-day="selectedDay"
         v-model:selected-level="selectedLevel"

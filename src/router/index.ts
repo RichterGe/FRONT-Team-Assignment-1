@@ -1,3 +1,5 @@
+import ConferenceOverviewView from '@/views/ConferenceOverviewView.vue'
+
 export const routes = [
   {
     path: '/sessions/:id',
@@ -8,7 +10,7 @@ export const routes = [
   {
     path: '/',
     name: 'conference-overview',
-    component: () => import('@/views/ConferenceOverviewView.vue'),
+    component: ConferenceOverviewView,
   },
   {
     path: '/speakers/:id',
