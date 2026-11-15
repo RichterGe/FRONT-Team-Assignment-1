@@ -84,6 +84,7 @@ Wir wählen **SSG (Static Site Generation) kombiniert mit einer clientseitigen A
 *   **Positiv:** Ohne zusätzliches Server-Setup erhalten Besuchende und Suchmaschinen sofort gerendertes HTML. Nach der Hydration ruft `useConferenceData()` die aktuelle `conference-data.json` im Client ab, sodass Raum- oder Zeitänderungen sofort sichtbar werden.
 *   **Negativ:** Der zusätzliche Client-Request beim Seitenaufruf erzeugt geringen Netzwerk-Overhead trotz bereits ausgeliefertem HTML.
 *   **Risiken:** Kurzzeitig können vor abgeschlossener Aktualisierung noch die statischen Build-Daten sichtbar sein (kurzes Umspringen), was für diesen Anwendungsfall aber vertretbar ist.
+*   **Nachtrag Schritt 3:** Session- und Speaker-Seiten werden mit `dirStyle: 'flat'` als `sessions/<id>.html` statt `sessions/<id>/index.html` ausgegeben, damit der Service Worker sie offline im Precache findet ([ADR-0006, Abschnitt 1](../schritt3/03-entscheidungsprotokoll.md)). Die Rendering-Strategie selbst bleibt unverändert.
 
 ---
 

@@ -1,14 +1,14 @@
 # PWA-Setup: Manifest & Service-Worker-Registrierung
 
 ## Tooling und Registrierung
-Für den Ausbau von **GameFoundry** zur installierbaren PWA nutzen wir `vite-plugin-pwa` (Workbox). Das Plugin integriert sich direkt in unsere Vite- und `vite-ssg`-Pipeline, generiert beim Build automatisch das Pre-Cache-Manifest für alle statischen Assets und registriert den Service Worker über `registerType: 'autoUpdate'` ohne fehleranfällige manuelle Cache-Versionierung.
+Wir nutzen `vite-plugin-pwa` (Workbox, `generateSW`). Es fügt sich in die `vite-ssg`-Pipeline ein und erzeugt nach dem Prerendering die Precache-Liste aller statischen Assets. Registriert wird der Service Worker in `src/main.ts` über `virtual:pwa-register`: nur im Browser (`import.meta.env.SSR`-Prüfung), nach `router.isReady()` und mit `registerType: 'autoUpdate'`.
 
 ## Manifest-Werte
-Das Web App Manifest (`manifest.webmanifest`) übernimmt die Branding-Definitionen aus Schritt 1:
+Das Manifest wird beim Build aus `vite.config.ts` als `manifest.webmanifest` erzeugt und übernimmt das Branding aus Schritt 1:
 - **`name` / `short_name`:** `"GameFoundry — Forge Your Schedule"` bzw. `"GameFoundry"`
 - **`start_url` & `scope`:** `"/"`
-- **`display`:** `"standalone"` für ein App-Erlebnis ohne Browser-Adressleiste
-- **`icons`:** Bereitstellung in `192x192` und `512x512` Pixeln (`png`, inkl. `maskable`)
+- **`display`:** `"standalone"`
+- **`icons`:** 64, 192 und 512 px sowie 512 px `maskable` (`public/icons/`)
 
 ## Begründung der Farb- und Icon-Werte
-Als `background_color` (`#08131C`, Token `--blue-950` / `--color-bg`) und `theme_color` (`#10222E`, Token `--blue-900` / `--color-surface-alt`) nutzen wir unsere dunklen Foundry-Oberflächentöne. Dies verhindert ein helles Aufblitzen beim App-Start und passt die Systemleiste dem Dark-Mode-Standard an, während die Icons mit `#18D7E8` (`--cyan-500`) unseren primären Markenakzent setzen.
+`background_color` (`#08131C`, `--color-bg`) und `theme_color` (`#10222E`, `--color-surface-alt`) liest der Build direkt aus `tokens.css`. Die dunklen Oberflächentöne verhindern ein helles Aufblitzen beim Start und passen zum Dark-Mode-Standard; die Icons setzen mit `#18D7E8` (`--cyan-500`) den Markenakzent.

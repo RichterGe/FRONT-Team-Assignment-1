@@ -7,12 +7,12 @@ Während der **GameFoundry**-Konferenz wechseln Besuchende ständig zwischen Vor
 
 | Datentyp | Enthaltene Ressourcen | Gewählte Strategie | Primäres Schutzziel |
 |---|---|---|---|
-| **1. Statische Assets & App-Shell** | HTML-Shell & vorgerenderte SSG-Seiten, JS-/CSS-Bundles, `tokens.css`, Icons, Fonts | **Cache-First** (Workbox Pre-Caching) | Sofortiger Start ohne Netz; Erreichbarkeit aller Routen |
+| **1. Statische Assets & App-Shell** | HTML-Shell & vorgerenderte SSG-Seiten, JS-/CSS-Bundles, `tokens.css`, Icons | **Cache-First** (Workbox Pre-Caching) | Sofortiger Start ohne Netz; Erreichbarkeit aller Routen |
 | **2. Sessions- & Speaker-Daten** | `/conference-data.json` (Laufzeitdaten für `useConferenceData()`) | **Stale-While-Revalidate** (Runtime-Cache + Build-Fallback) | Sofortige Anzeige + Hintergrund-Update bei Raumwechsel |
 | **3. „Mein Programm“** | Gespeicherte Session-IDs + App-Shell + Konferenzdaten | **`localStorage`** + **Cache-First App-Shell** (`navigateFallback`) | Offline-Lese- und Schreibzugriff auf den persönlichen Zeitplan |
 
 ### 1. Statische Assets & App-Shell — *Cache-First (Pre-Caching)*
-Das Anwendungsgerüst (HTML-Shell, vorgerenderte Session-/Speaker-Seiten, Vue-3-Chunks, `tokens.css`, Icons und Fonts) ändert sich nur bei einem neuen Deployment. Bei der Service-Worker-Installation landen diese Dateien im Pre-Cache und werden per **Cache-First** direkt vom Gerät ausgeliefert — im überfüllten Vortragssaal ohne jede Netzlatenz.
+Das Anwendungsgerüst (HTML-Shell, vorgerenderte Session-/Speaker-Seiten, Vue-3-Chunks, `tokens.css`, Icons) ändert sich nur bei einem neuen Deployment. Bei der Service-Worker-Installation landen diese Dateien im Pre-Cache und werden per **Cache-First** direkt vom Gerät ausgeliefert — im überfüllten Vortragssaal ohne jede Netzlatenz.
 
 ### 2. Sessions- und Speaker-Daten (`conference-data.json`) — *Cache-First vs. Stale-While-Revalidate*
 - **Warum Cache-First für weitgehend statische Programmdaten naheliegt:** Nach Veröffentlichung bleiben Speaker-Biografien, Abstracts und Tracks meist konstant. *Cache-First* spart Datenvolumen und liefert das Programm im Flugmodus sofort lokal aus.

@@ -51,4 +51,14 @@ Open the local address printed by Vite Preview to inspect the production build.
 - **Session Details (`/sessions/:id`) — SSG + CSR Revalidation (Stale-While-Revalidate):** Pre-rendered at build time for immediate display and SEO, then revalidated client-side via `useConferenceData().loadData()` fetching `/conference-data.json` after hydration so schedule or room updates take effect immediately.
 - **My Programme (`/my-programme`) — CSR:** Rendered purely on the client by rehydrating bookmarked session IDs from `localStorage` and matching them against `useConferenceData()`.
 
+## PWA & Offline
+
+The app is an installable PWA built with `vite-plugin-pwa` (Workbox). The service worker only runs in the production build (`npm run build` + `npm run preview`), not in `npm run dev`.
+
+- **App shell (HTML, JS, CSS, icons) — Cache-First:** Precached at install time, so every route works offline after the first online visit.
+- **`/conference-data.json` — Stale-While-Revalidate:** Served from the runtime cache and refreshed in the background; falls back to the bundled data if neither cache nor network is available.
+- **My Programme (`/my-programme`) — `localStorage` + navigation fallback:** Loads offline via the cached app shell.
+
+Decisions and test results: [`docs/schritt3/`](docs/schritt3/).
+
 `npm run build` runs the TypeScript/Vue type check and generates the production site in `dist/`. `npm run build-only` runs static generation without the type check.
