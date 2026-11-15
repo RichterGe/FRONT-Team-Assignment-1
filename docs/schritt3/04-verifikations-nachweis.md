@@ -1,7 +1,7 @@
 # Schritt 3 — Verifikationsnachweis (Offline-Tests & PWA-Audit)
 
 * **Verantwortlich:** Georg Richter (Person 2, Aufgabe E)
-* **Teststand:** Produktions-Build (`npm run build` → `vite-ssg` + `PWA v2.0.0`, 62 Precache-Manifest-Einträge / 56 eindeutige Cache-URLs) auf `http://localhost:4173` (`npx vite preview --port 4173 --strictPort`)
+* **Teststand:** Produktions-Build (`npm run build` → `vite-ssg` + `PWA v2.0.0`, 56 Precache-Einträge) auf `http://localhost:4173` (`npx vite preview --port 4173 --strictPort`)
 * **Testumgebung:** Windows 11, Google Chrome 157 (`Chrome/157.0.8103.51`), `lighthouse@13.6.0` (Desktop-Preset), Chrome DevTools (Network-Tab „Offline“) sowie Chrome DevTools Protocol (CDP)
 
 ---
@@ -32,7 +32,7 @@ Nach einem einmaligen Online-Besuch von `http://localhost:4173/` kontrollierte `
 
 ### Stale-While-Revalidate auf `/conference-data.json` (B.2)
 Gemäß ADR-0005 ruft die Startseite `/` selbst kein `loadData()` auf; der Initialstand stammt aus dem gebündelten JSON (`conferenceDataJson`). Sobald online `/sessions/s01` oder `/my-programme` geöffnet wird, greift `StaleWhileRevalidate` aus [vite.config.ts](../../vite.config.ts):
-1. Die Workbox-Route prüft `sameOrigin && url.pathname.endsWith('/conference-data.json')` und legt die Antwort (`statuses: [0, 200]`) im Runtime-Cache `conference-data-cache` ab (`maxEntries: 5`, `maxAgeSeconds: 86400`).
+1. Die Workbox-Route prüft `sameOrigin && url.pathname.endsWith('/conference-data.json')` und legt die Antwort (`statuses: [0, 200]`) im Runtime-Cache `conference-data-cache` ab (`maxEntries: 5`, `maxAgeSeconds: 604800`, 7 Tage).
 2. Bei einem erneuten Aufruf nach > 1 s wurde `/conference-data.json` sofort mit `200 (from ServiceWorker)` ausgeliefert, während die Hintergrund-Revalidierung den gespeicherten Response-Header in `conference-data-cache` messbar von `Sun, 15 Nov 2026 09:17:53 GMT` auf `Sun, 15 Nov 2026 09:17:56 GMT` aktualisierte.
 
 ### Szenario 2 — „Mein Programm“ offline mit `localStorage` & Runtime-Cache
@@ -93,4 +93,4 @@ Getestet wurde der Produktions-Build (`npm run build`) lokal über `vite preview
 
 Alle technischen Offline- und PWA-Kernanforderungen greifen zuverlässig: Nach dem initialen Online-Besuch kontrolliert `sw.js` die Anwendung, lädt vorgerenderte Routen und Assets offline aus dem Precache (`56` eindeutige Cache-Einträge) und liefert `/my-programme` über den App-Shell-Fallback (`navigateFallback: 'index.html'`) inklusive persistierter `localStorage`-IDs (`gamefoundry_my_programme`). Für `/conference-data.json` arbeitet die konfigurierte `StaleWhileRevalidate`-Strategie (`conference-data-cache`): Beim Folgeaufruf von `/sessions/s01` erfolgte die Auslieferung sofort aus dem Service Worker, während sich der Cache-Eintrag messbar im Hintergrund aktualisierte. Auch Manifest-Prüfung und Chrome-Installability ergaben null Fehler.
 
-Zwei ehrliche Lücken bleiben zu beachten: Erstens ruft die Startseite `/` bewusst kein `loadData()` auf (ADR-0005), weshalb `conference-data-cache` erst beim Online-Besuch einer Detailseite oder von `/my-programme` befüllt wird; davor greift offline jedoch der eingebettete JS-Initialstand. Zweitens entfernte Lighthouse ab Version 12 den eigenen PWA-Score, weshalb Installierbarkeit über Chrome-DevTools-Protokollprüfungen belegt wurde; zudem drücken eine fehlende `meta-description` und eine ungültige `robots.txt` den SEO-Wert auf 82. Der unabhängige Cross-Review-Lauf durch Teammitglied 1 steht noch aus.
+Zwei ehrliche Lücken bleiben zu beachten: Erstens ruft die Startseite `/` bewusst kein `loadData()` auf (ADR-0005), weshalb `conference-data-cache` erst beim Online-Besuch einer Detailseite oder von `/my-programme` befüllt wird; davor greift offline jedoch der eingebettete JS-Initialstand. Zweitens entfernte Lighthouse ab Version 12 den eigenen PWA-Score, weshalb Installierbarkeit über Chrome-DevTools-Protokollprüfungen belegt wurde; zudem drücken eine fehlende `meta-description` und eine ungültige `robots.txt` den SEO-Wert auf 82. Der unabhängige Durchlauf auf Testumgebung 1 bestätigte alle drei Szenarien; ohne vorherigen Online-Besuch von `/my-programme` griff dort erwartungsgemäß der Bundle-Fallback statt des Runtime-Caches.

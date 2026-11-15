@@ -60,7 +60,7 @@ Wir wählen **Stale-While-Revalidate** (`cacheName: 'conference-data-cache'`) f�
 ### Konsequenzen
 * **Positiv:** Vollständige Konsistenz zwischen Schritt 2 (ADR-0005) und Schritt 3: Nutzende erhalten im Vortragssaal oder Flugmodus sofortige Antwortzeiten aus dem Cache (`from ServiceWorker`), während Raum- oder Zeitänderungen bei bestehender Verbindung automatisch im Hintergrund eingespielt werden. Schlägt der Hintergrund-Request im Offline-Modus fehl, behält `useConferenceData()` den gecachten bzw. statisch eingebetteten Datensatz ohne Fehlermeldung im UI bei.
 * **Negativ:** Wird ein Raum auf dem Server geändert, sieht der Client beim unmittelbar ersten Aufruf nach der Änderung zunächst noch den gecachten Stand (`Stale`), bevor die Revalidierung im Hintergrund abgeschlossen ist.
-* **Risiken:** Ohne Begrenzung könnten veraltete Einträge unbegrenzt im Cache verbleiben; wir begrenzen den Runtime-Cache daher konkret über `expiration: { maxEntries: 5, maxAgeSeconds: 86400 }` sowie `cacheableResponse: { statuses: [0, 200] }`.
+* **Risiken:** Ohne Begrenzung könnten veraltete Einträge unbegrenzt im Cache verbleiben; wir begrenzen den Runtime-Cache daher konkret über `expiration: { maxEntries: 5, maxAgeSeconds: 604800 }` (7 Tage, nach Cross-Review von 24 Stunden erhöht, damit der Eintrag die zweitägige Konferenz überdauert) sowie `cacheableResponse: { statuses: [0, 200] }`.
 
 ---
 
@@ -86,21 +86,37 @@ Wir behalten die **reine ID-Persistenz im `localStorage`** bei und sichern die O
 
 ## 4. Konkret getestete Szenarien (Gemeinsames Testprotokoll)
 
-Die folgenden drei Pflichtszenarien wurden nach dem Produktions-Build (`npm run build && npx vite preview --port 4173 --strictPort`) auf Testumgebung 2 durchgeführt; der unabhängige Cross-Review-Durchlauf auf Testumgebung 1 steht noch aus:
-- **Testumgebung 1 (Eric Drößiger):** *Noch ausstehend (unabhängiger Durchlauf erforderlich)*
+Die folgenden drei Pflichtszenarien wurden nach dem Produktions-Build (`npm run build && npx vite preview --port 4173 --strictPort`) von beiden Teammitgliedern unabhängig auf dem jeweils eigenen System durchgeführt:
+- **Testumgebung 1 (Eric Drößiger):** Windows 11, Google Chrome 157 (Chrome 157.0.8103.51, npm run preview auf http://localhost:4173)
 - **Testumgebung 2 (Georg Richter):** Windows 11, Google Chrome 157 (`Chrome/157.0.8103.51`, `npx vite preview` auf `http://localhost:4173`)
 
 ### Szenario 1: Programm einmal online geladen, Offline-Modus aktiviert, Session-Übersicht erneut geöffnet
 * **Ausgangslage:** Der Produktions-Build läuft lokal unter `http://localhost:4173`. Die Startseite (`/`) wurde einmal online geladen; der Service Worker (`sw.js`) ist aktiviert und kontrolliert die Seite, während `workbox-precache-v2` alle 56 eindeutigen App-Shell-, HTML-SSG-, Asset- und Icon-Einträge vorhält.
 * **Aktion:** Über das Chrome-DevTools-Network-Tab („Offline“) wird der Browser offline geschaltet und die Startseite (`/`) per Reload neu geladen; anschließend wird im Track-Dropdown nach `frontend-architecture` gefiltert und zurückgesetzt.
 * **Beobachtetes Verhalten:** Die Startseite und alle 8 Ressourcen laden mit HTTP `200 (ServiceWorker)` (`0 B` übertragen, `169 kB` Ressourcen) ohne fehlgeschlagene Requests. Alle 20 Session-Karten bleiben sichtbar; beim anschließenden Track-Filter reduziert sich die Anzeige offline verzögerungsfrei auf 4 passende Sessions.
+* **Ergebnis Testumgebung 1:** Gleiches Verhalten. Nach dem Reload im Offline-Modus sind alle 20 Sessions sichtbar; der Service Worker ist aktiv und kontrolliert die Seite (Offline über *Application → Service Workers* geschaltet).
 
 ### Szenario 2: „Mein Programm“ offline geöffnet, nachdem zuvor Sessions hinzugefügt wurden
 * **Ausgangslage:** Nach initialem Online-Laden werden drei Sessions (`s01`, `s05`, `s12`) auf der Übersichtsseite vorgemerkt (`localStorage`-Schlüssel `gamefoundry_my_programme` enthält `["s01","s05","s12"]`, Navigation-Badge zeigt `3`). Zudem wurde `/my-programme` zuvor online geöffnet, sodass `/conference-data.json` via `StaleWhileRevalidate` in `conference-data-cache` liegt.
 * **Aktion:** Im Chrome-DevTools-Network-Tab wird *Offline* aktiviert, `/my-programme` neu geladen und die erste Session offline über *Remove from Programme* entfernt.
 * **Beobachtetes Verhalten:** App-Shell (`navigateFallback`), View-Chunk und Runtime-Cache liefern `/my-programme` sowie `/conference-data.json` sofort mit HTTP `200 (ServiceWorker)` (`0 B` übertragen). Die parallele SWR-Hintergrund-Revalidierung schlägt offline erwartungsgemäß fehl (`net::ERR_INTERNET_DISCONNECTED`); alle drei Sessions rendern vollständig und sinken beim Entfernen konsistent auf `2` (`["s05","s12"]`).
+* **Ergebnis Testumgebung 1:** Bewusst strengere Variante: `/my-programme` wurde vorher **nicht** online geöffnet. Die Route lädt offline über `navigateFallback`, der `PersonalProgrammeView`-Chunk kommt aus dem Precache, und die gemerkten Sessions erscheinen vollständig (Badge `2`). Weil `/conference-data.json` nie online abgerufen wurde, lag sie nicht im Runtime-Cache; `useConferenceData()` fiel auf den gebündelten Datenstand zurück (Konsole: `keeping static build data`). Das bestätigt die zweite Absicherungsebene aus Abschnitt 2.
 
 ### Szenario 3: Erstbesuch ohne vorheriges Online-Laden im Offline-Zustand (Bewusster Grenzfall)
 * **Ausgangslage:** In einem frischen Browser-Kontext ohne vorherige Online-Sitzung existieren weder Service Worker (`sw.js`) noch Einträge in Cache Storage oder `localStorage`. Bereits vor dem ersten Seitenaufruf wird der Browser in den Offline-Modus versetzt.
 * **Aktion:** Die URL `http://localhost:4173/` wird erstmals direkt in der Adresszeile aufgerufen.
 * **Beobachtetes Verhalten:** Da noch kein Service Worker installiert ist, der die Anfrage abfangen könnte, schlägt der Navigations-Request mit `net::ERR_INTERNET_DISCONNECTED` fehl und der Browser zeigt die Standard-Offline-Fehlerseite. Dies bestätigt die bewusste Systemgrenze einer Web-PWA: Erst nach einem initialen Online-Besuch kann das App-Shell-Precaching greifen.
+* **Ergebnis Testumgebung 1:** Gleiches Verhalten in einem frischen Inkognito-Fenster: Unter *Service Workers* ist keine Registrierung vorhanden, der Dokument-Request auf `localhost` schlägt mit `net::ERR_INTERNET_DISCONNECTED` fehl.
+
+---
+
+## 5. Cross-Review (Eric Drößiger, 2026-11-15)
+
+Geprüft wurden Abschnitt 2 dieses Protokolls, die Szenariobeschreibungen in Abschnitt 4, der Verifikationsnachweis (`04-verifikations-nachweis.md`) sowie die `runtimeCaching`-Konfiguration in `vite.config.ts`.
+
+* **Ergebnis:** Entscheidung und Umsetzung für `/conference-data.json` (Stale-While-Revalidate, Runtime-Cache `conference-data-cache`) sind konsistent. Alle drei Szenarien wurden durch den unabhängigen Durchlauf auf Testumgebung 1 bestätigt.
+* **Änderungen nach dem Review:**
+  * `maxAgeSeconds` von 24 Stunden auf 7 Tage erhöht: Die Konferenz dauert zwei Tage; nach mehr als 24 Stunden offline hätte Workbox den Eintrag verworfen und die App auf den gebündelten Build-Stand ohne spätere Raumänderungen zurückfallen lassen.
+  * `includeAssets` entfernt und `includeManifestIcons: false` gesetzt: Icons, Favicon und Apple-Touch-Icon erfasst bereits `globPatterns`; zuvor standen sechs Einträge doppelt in der Precache-Liste.
+  * Nachweis für Szenario 3 um Screenshots mit sichtbaren DevTools (Offline-Schalter, leere Service-Worker-Liste, fehlgeschlagener Dokument-Request) ergänzt.
+* **Bekannte Lücke (bestätigt):** Ohne vorherigen Online-Besuch einer Detailseite oder von `/my-programme` liegt `/conference-data.json` nicht im Runtime-Cache. Offline greift dann der eingebettete Datenstand; späte Raumänderungen fehlen in diesem Fall.

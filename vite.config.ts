@@ -60,8 +60,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
 
-      // Dateien aus public/, die zusätzlich in den Precache sollen
-      includeAssets: ['favicon.ico', 'icons/apple-touch-icon-180x180.png'],
+      // Icons, Favicon und Apple-Touch-Icon erfasst bereits workbox.globPatterns (B.1);
+      // ohne diese Option stünden die Manifest-Icons doppelt in der Precache-Liste.
+      includeManifestIcons: false,
 
       // Aufgabe A: Web App Manifest, Werte aus docs/schritt3/01-pwa-setup.md
       manifest: {
@@ -113,7 +114,9 @@ export default defineConfig({
               cacheName: 'conference-data-cache',
               expiration: {
                 maxEntries: 5,
-                maxAgeSeconds: 60 * 60 * 24,
+                // 7 Tage: deckt die zweitägige Konferenz inklusive Anreise ab,
+                // ohne dass der Eintrag bei längerem Offline-Betrieb verworfen wird.
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
               cacheableResponse: {
                 statuses: [0, 200],
