@@ -5,8 +5,12 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA } from 'vite-plugin-pwa'
+
 
 import conferenceData from './src/data/conference-data.json' with { type: 'json' }
+
+
 
 const conferenceDataPath = fileURLToPath(
   new URL('./src/data/conference-data.json', import.meta.url),
@@ -38,6 +42,9 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     serveConferenceDataPlugin(),
+    VitePWA({
+      registerType: 'autoUpdate',
+    }),
   ],
   resolve: {
     alias: {
