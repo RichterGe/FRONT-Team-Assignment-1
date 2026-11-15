@@ -171,9 +171,9 @@ const sessionTrack = computed<ConferenceTrack | undefined>(() => {
 }
 
 .btn-bookmark.is-bookmarked:hover {
-  background: var(--color-accent-warm);
-  border-color: var(--color-accent-warm);
-  color: var(--color-bg);
+  background: var(--color-badge-featured-bg);
+  border-color: var(--color-badge-featured-text);
+  color: var(--color-badge-featured-text);
 }
 
 .session-title {

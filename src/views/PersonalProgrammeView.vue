@@ -93,7 +93,7 @@ onMounted(async () => {
 }
 
 .state-empty p {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   margin-bottom: var(--space-16);
 }
 
@@ -159,8 +159,8 @@ onMounted(async () => {
 
 .btn-remove {
   background: transparent;
-  color: var(--color-accent-warm);
-  border: 1px solid var(--color-accent-warm);
+  color: var(--color-badge-featured-text);
+  border: 1px solid var(--color-badge-featured-text);
   padding: var(--space-4) 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -170,7 +170,7 @@ onMounted(async () => {
 }
 
 .btn-remove:hover {
-  background: var(--color-accent-warm);
-  color: var(--color-bg);
+  background: var(--color-badge-featured-bg);
+  color: var(--color-badge-featured-text);
 }
 </style>
