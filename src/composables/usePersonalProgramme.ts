@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
+import { ref, computed, watch, onMounted, getCurrentInstance, effectScope } from 'vue'
 import { useConferenceData, type ConferenceSession } from './useConferenceData'
 
 const STORAGE_KEY = 'gamefoundry_my_programme'
@@ -7,6 +7,16 @@ const STORAGE_KEY = 'gamefoundry_my_programme'
 const savedSessionIds = ref<string[]>([])
 const isHydrated = ref<boolean>(false)
 let isInitialized = false
+const storageScope = effectScope(true)
+
+function persistToStorage(ids: string[]) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
+  } catch (err) {
+    console.error('Failed to persist saved sessions to localStorage:', err)
+  }
+}
 
 function rehydrateFromStorage() {
   if (isInitialized || typeof window === 'undefined') return
@@ -16,7 +26,9 @@ function rehydrateFromStorage() {
     if (raw) {
       const parsed: unknown = JSON.parse(raw)
       if (Array.isArray(parsed)) {
-        savedSessionIds.value = parsed.filter((id): id is string => typeof id === 'string')
+        savedSessionIds.value = [
+          ...new Set(parsed.filter((id): id is string => typeof id === 'string')),
+        ]
       }
     }
   } catch (err) {
@@ -24,13 +36,16 @@ function rehydrateFromStorage() {
     savedSessionIds.value = []
   }
 
-  watch(
-    savedSessionIds,
-    (newIds) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newIds))
-    },
-    { deep: true },
-  )
+  // Keep the watcher in a detached scope so unmounting the first route view never stops persistence
+  storageScope.run(() => {
+    watch(
+      savedSessionIds,
+      (newIds) => {
+        persistToStorage(newIds)
+      },
+      { deep: true },
+    )
+  })
 
   isInitialized = true
   isHydrated.value = true
@@ -68,11 +83,13 @@ export function usePersonalProgramme() {
     } else {
       savedSessionIds.value.splice(index, 1)
     }
+    persistToStorage(savedSessionIds.value)
   }
 
   const removeSession = (sessionId: string) => {
     rehydrateFromStorage()
     savedSessionIds.value = savedSessionIds.value.filter((id) => id !== sessionId)
+    persistToStorage(savedSessionIds.value)
   }
 
   return {
