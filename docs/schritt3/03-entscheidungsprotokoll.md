@@ -4,7 +4,7 @@
 Approved
 
 ## Datum
-2026-11-14
+2026-11-14 (aktualisiert 2026-11-15)
 
 ## Autoren & Review
 - **Federführend & Cross-Review im Wechsel:** Eric Drößiger (Person 1: App-Shell & Statische Assets) und Georg Richter (Person 2: Sessions-/Speaker-Daten-Caching & Verifikation)
@@ -92,15 +92,15 @@ Die folgenden drei Pflichtszenarien wurden nach dem Produktions-Build (`npm run 
 
 ### Szenario 1: Programm einmal online geladen, Offline-Modus aktiviert, Session-Übersicht erneut geöffnet
 * **Ausgangslage:** Der Produktions-Build läuft lokal unter `http://localhost:4173`. Die Startseite (`/`) wurde einmal online geladen; der Service Worker (`sw.js`) ist aktiviert und kontrolliert die Seite, während `workbox-precache-v2` alle 56 eindeutigen App-Shell-, HTML-SSG-, Asset- und Icon-Einträge vorhält.
-* **Aktion:** Über DevTools/CDP wird der Browser offline geschaltet (`offline: true`) und die Startseite (`/`) per Reload neu geladen; anschließend wird im Track-Dropdown nach `frontend-architecture` gefiltert und zurückgesetzt.
-* **Beobachtetes Verhalten:** Die Startseite wird mit HTTP `200 (from ServiceWorker)` ohne Konsolenfehler geladen. Alle 20 Session-Karten bleiben sichtbar; beim Track-Filter reduziert sich die Anzeige offline verzögerungsfrei auf 4 passende Sessions.
+* **Aktion:** Über das Chrome-DevTools-Network-Tab („Offline“) wird der Browser offline geschaltet und die Startseite (`/`) per Reload neu geladen; anschließend wird im Track-Dropdown nach `frontend-architecture` gefiltert und zurückgesetzt.
+* **Beobachtetes Verhalten:** Die Startseite und alle 8 Ressourcen laden mit HTTP `200 (ServiceWorker)` (`0 B` übertragen, `169 kB` Ressourcen) ohne fehlgeschlagene Requests. Alle 20 Session-Karten bleiben sichtbar; beim anschließenden Track-Filter reduziert sich die Anzeige offline verzögerungsfrei auf 4 passende Sessions.
 
 ### Szenario 2: „Mein Programm“ offline geöffnet, nachdem zuvor Sessions hinzugefügt wurden
 * **Ausgangslage:** Nach initialem Online-Laden werden drei Sessions (`s01`, `s05`, `s12`) auf der Übersichtsseite vorgemerkt (`localStorage`-Schlüssel `gamefoundry_my_programme` enthält `["s01","s05","s12"]`, Navigation-Badge zeigt `3`). Zudem wurde `/my-programme` zuvor online geöffnet, sodass `/conference-data.json` via `StaleWhileRevalidate` in `conference-data-cache` liegt.
-* **Aktion:** Der Browser wird offline geschaltet (`offline: true`), `/my-programme` neu geladen und testweise die erste Session offline über *Remove from Programme* entfernt.
-* **Beobachtetes Verhalten:** Der Navigations-Fallback (`navigateFallback: 'index.html'`) und der Runtime-Cache liefern `/my-programme` sowie `/conference-data.json` mit HTTP `200 (from ServiceWorker)` ohne Konsolenfehler aus. Alle drei Sessions rendern vollständig; nach dem Offline-Entfernen sinken Kartenanzahl, Badge (`2`) und `localStorage` (`["s05","s12"]`) konsistent mit.
+* **Aktion:** Im Chrome-DevTools-Network-Tab wird *Offline* aktiviert, `/my-programme` neu geladen und die erste Session offline über *Remove from Programme* entfernt.
+* **Beobachtetes Verhalten:** App-Shell (`navigateFallback`), View-Chunk und Runtime-Cache liefern `/my-programme` sowie `/conference-data.json` sofort mit HTTP `200 (ServiceWorker)` (`0 B` übertragen). Die parallele SWR-Hintergrund-Revalidierung schlägt offline erwartungsgemäß fehl (`net::ERR_INTERNET_DISCONNECTED`); alle drei Sessions rendern vollständig und sinken beim Entfernen konsistent auf `2` (`["s05","s12"]`).
 
 ### Szenario 3: Erstbesuch ohne vorheriges Online-Laden im Offline-Zustand (Bewusster Grenzfall)
-* **Ausgangslage:** In einem frischen Browser-Kontext ohne vorherige Online-Sitzung existieren weder Service Worker (`sw.js`) noch Einträge in Cache Storage oder `localStorage`. Bereits vor dem ersten Seitenaufruf wird der Offline-Modus aktiviert (`offline: true`).
+* **Ausgangslage:** In einem frischen Browser-Kontext ohne vorherige Online-Sitzung existieren weder Service Worker (`sw.js`) noch Einträge in Cache Storage oder `localStorage`. Bereits vor dem ersten Seitenaufruf wird der Browser in den Offline-Modus versetzt.
 * **Aktion:** Die URL `http://localhost:4173/` wird erstmals direkt in der Adresszeile aufgerufen.
 * **Beobachtetes Verhalten:** Da noch kein Service Worker installiert ist, der die Anfrage abfangen könnte, schlägt der Navigations-Request mit `net::ERR_INTERNET_DISCONNECTED` fehl und der Browser zeigt die Standard-Offline-Fehlerseite. Dies bestätigt die bewusste Systemgrenze einer Web-PWA: Erst nach einem initialen Online-Besuch kann das App-Shell-Precaching greifen.
