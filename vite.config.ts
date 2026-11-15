@@ -63,7 +63,8 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'icons/apple-touch-icon-180x180.png'],
 
       // Aufgabe A: Web App Manifest, Werte aus docs/schritt3/01-pwa-setup.md
-      manifest: {
+      manifest:
+      {
         name: 'GameFoundry — Forge Your Schedule',
         short_name: 'GameFoundry',
         description: 'Conference platform for game-development professionals.',
@@ -73,17 +74,26 @@ export default defineConfig({
         display: 'standalone',
         background_color: token('--color-bg'), // löst auf zu --blue-950
         theme_color: token('--color-surface-alt'), // löst auf zu --blue-900
-        icons: [
+        icons:
+        [
           { src: 'icons/pwa-64x64.png', sizes: '64x64', type: 'image/png' },
           { src: 'icons/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          {
-            src: 'icons/maskable-icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
+          { src: 'icons/maskable-icon-512x512.png', sizes: '512x512', type: 'image/png',purpose: 'maskable',},
         ],
+      },
+      workbox: {
+        // B.1 Statische Assets & App-Shell → Cache-First über den Precache.
+        // html = vorgerenderte Seiten (SSG), js = alle View-Chunks,
+        // css = Bundle inkl. tokens.css, Bildformate = Icons und Favicon.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+
+        // B.2 conference-data.json gehört NICHT in den Precache:
+        // Sie wird per Stale-While-Revalidate im Runtime-Cache bedient.
+        globIgnores: ['**/conference-data.json'],
+
+        // Alte Precaches früherer Builds beim Aktivieren löschen
+        cleanupOutdatedCaches: true,
       },
     }),
   ],
