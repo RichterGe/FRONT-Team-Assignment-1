@@ -94,6 +94,11 @@ export default defineConfig({
 
         // Alte Precaches früherer Builds beim Aktivieren löschen
         cleanupOutdatedCaches: true,
+
+        // B.3 "Mein Programm" (CSR, nicht vorgerendert): Jeder Seitenaufruf ohne
+        // eigene Datei im Precache bekommt die gecachte App-Shell. Vue Router
+        // rendert dann die passende View, die IDs kommen aus dem localStorage.
+        navigateFallback: 'index.html',
       },
     }),
   ],
