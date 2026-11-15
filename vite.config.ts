@@ -99,6 +99,9 @@ export default defineConfig({
         // eigene Datei im Precache bekommt die gecachte App-Shell. Vue Router
         // rendert dann die passende View, die IDs kommen aus dem localStorage.
         navigateFallback: 'index.html',
+
+        // B.2 Sessions-/Speaker-Daten → Stale-While-Revalidate (Georg)
+        // runtimeCaching: [ ... ],
       },
     }),
   ],
