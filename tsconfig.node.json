@@ -7,7 +7,7 @@
     "cypress.config.*",
     "playwright.config.*",
     "eslint.config.*",
-    "pwa-assets.config.*" // ohne diesen Eintrag läuft der Asset genrator, aber die Datei wird nicht typgeprüft
+    "pwa-assets.config.*" // ohne diesen Eintrag läuft der Asset-Generator, aber die Datei wird nicht typgeprüft
   ],
   "compilerOptions": {
     // Most tools use transpilation instead of Node.js's native type-stripping.

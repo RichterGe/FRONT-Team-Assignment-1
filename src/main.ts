@@ -8,13 +8,11 @@ import { routes } from './router'
 /**
 Service-Worker-Registrierung (vite-plugin-pwa)
 
-
 Nur im Browser: vite-ssg führt main.ts beim Build in Node aus,
-dort gibt es kein navigator. Daher isClient-Check + dynamischer Import.
+dort gibt es kein navigator. Daher import.meta.env.SSR-Check + dynamischer Import.
 
 Erst nach router.isReady(), damit Hydration und erstes Rendern zuerst fertig sind.
 onOfflineReady meldet, wann der Precache vollständig ist.
-
 **/
 
 export const createApp = ViteSSG(
@@ -28,17 +26,24 @@ export const createApp = ViteSSG(
   },
   ({ router }) => {
     // Aufgabe A: SW-Registrierung nur im Browser, nie während des SSG-Builds
-    // import.meta.env.SSR ist beim Build true; isClient ist veraltet
     if (import.meta.env.SSR) return
 
-    router.isReady().then(async () => {
-      const { registerSW } = await import('virtual:pwa-register')
-      registerSW({
-        immediate: true,
-        onOfflineReady() {
-          console.info('[PWA] App-Shell im Cache, App ist offline bereit')
-        },
+    void router
+      .isReady()
+      .then(async () => {
+        const { registerSW } = await import('virtual:pwa-register')
+        registerSW({
+          immediate: true,
+          onOfflineReady() {
+            console.info('[PWA] App-Shell im Cache, App ist offline bereit')
+          },
+          onRegisterError(error) {
+            console.error('[PWA] Service-Worker-Registrierung fehlgeschlagen:', error)
+          },
+        })
       })
-    })
+      .catch((error: unknown) => {
+        console.error('[PWA] Fehler beim Initialisieren des Service Workers:', error)
+      })
   },
 )

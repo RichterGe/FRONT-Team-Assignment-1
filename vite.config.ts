@@ -7,7 +7,6 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
-
 import conferenceData from './src/data/conference-data.json' with { type: 'json' }
 
 const conferenceDataPath = fileURLToPath(
@@ -41,14 +40,16 @@ const tokensCss = readFileSync(
 )
 
 // Liest einen Token aus tokens.css und folgt var(--...) bis zum Hex-Wert.
-//Wirft Fehler aus wenn Tokens fehlen oder umbenannt werden.
-function token(name: string): string {
-  const value = tokensCss.match(new RegExp(`${name}:\\s*([^;]+);`))?.[1]?.trim()
+// Wirft einen Fehler, wenn Tokens fehlen, umbenannt wurden oder zyklisch sind.
+function token(name: string, seen = new Set<string>()): string {
+  if (seen.has(name)) throw new Error(`Zyklische Token-Referenz bei ${name}`)
+  seen.add(name)
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const value = tokensCss.match(new RegExp(`(?<![\\w-])${escaped}:\\s*([^;]+);`))?.[1]?.trim()
   if (!value) throw new Error(`Token ${name} fehlt in tokens.css`)
   const ref = value.match(/^var\((--[\w-]+)\)$/)?.[1]
-  return ref ? token(ref) : value
+  return ref ? token(ref, seen) : value
 }
-
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -63,8 +64,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'icons/apple-touch-icon-180x180.png'],
 
       // Aufgabe A: Web App Manifest, Werte aus docs/schritt3/01-pwa-setup.md
-      manifest:
-      {
+      manifest: {
         name: 'GameFoundry — Forge Your Schedule',
         short_name: 'GameFoundry',
         description: 'Conference platform for game-development professionals.',
@@ -74,12 +74,16 @@ export default defineConfig({
         display: 'standalone',
         background_color: token('--color-bg'), // löst auf zu --blue-950
         theme_color: token('--color-surface-alt'), // löst auf zu --blue-900
-        icons:
-        [
+        icons: [
           { src: 'icons/pwa-64x64.png', sizes: '64x64', type: 'image/png' },
           { src: 'icons/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/maskable-icon-512x512.png', sizes: '512x512', type: 'image/png',purpose: 'maskable',},
+          {
+            src: 'icons/maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {
@@ -90,7 +94,8 @@ export default defineConfig({
 
         // B.2 conference-data.json gehört NICHT in den Precache:
         // Sie wird per Stale-While-Revalidate im Runtime-Cache bedient.
-        globIgnores: ['**/conference-data.json'],
+        // icons/logo.svg ist nur Ausgangsdatei für @vite-pwa/assets-generator.
+        globIgnores: ['**/conference-data.json', '**/icons/logo.svg'],
 
         // Alte Precaches früherer Builds beim Aktivieren löschen
         cleanupOutdatedCaches: true,
@@ -99,6 +104,7 @@ export default defineConfig({
         // eigene Datei im Precache bekommt die gecachte App-Shell. Vue Router
         // rendert dann die passende View, die IDs kommen aus dem localStorage.
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/\/[^/?]+\.[^/]+$/],
 
         // B.2 Sessions-/Speaker-Daten → Stale-While-Revalidate (Georg)
         // runtimeCaching: [ ... ],
@@ -111,19 +117,13 @@ export default defineConfig({
     },
   },
   ssgOptions: {
-    dirStyle: 'nested',
+    dirStyle: 'flat',
     includedRoutes(paths) {
-      const staticRoutes = paths.filter(
-        (path) => !path.includes(':') && path !== '/my-programme',
-      )
+      const staticRoutes = paths.filter((path) => !path.includes(':') && path !== '/my-programme')
 
-      const speakerRoutes = conferenceData.speakers.map(
-        (speaker) => `/speakers/${speaker.id}`,
-      )
+      const speakerRoutes = conferenceData.speakers.map((speaker) => `/speakers/${speaker.id}`)
 
-      const sessionRoutes = conferenceData.sessions.map(
-        (session) => `/sessions/${session.id}`,
-      )
+      const sessionRoutes = conferenceData.sessions.map((session) => `/sessions/${session.id}`)
 
       return [...staticRoutes, ...speakerRoutes, ...sessionRoutes]
     },
