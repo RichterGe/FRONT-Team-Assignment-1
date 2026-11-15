@@ -4,7 +4,7 @@
 Approved
 
 ## Datum
-2026-11-14
+2026-11-14 (aktualisiert 2026-11-15)
 
 ## Autoren & Review
 - **Federführend & Cross-Review im Wechsel:** Eric Drößiger (Person 1: App-Shell & Statische Assets) und Georg Richter (Person 2: Sessions-/Speaker-Daten-Caching & Verifikation)
@@ -40,7 +40,7 @@ Wir entscheiden uns für **Build-Time Pre-Caching in Kombination mit einer Cache
 ### Konsequenzen
 * **Positiv:** Nach dem ersten Online-Aufruf der Plattform befinden sich alle View-Chunks (`ConferenceOverviewView`, `SessionDetailView`, `SpeakerDetailView`, `PersonalProgrammeView`), Stylesheets und Icons vollständig im lokalen Cache Storage. Seitenwechsel und Reloads im Flugmodus erfolgen ohne Netzwerk-Verzögerung.
 * **Negativ:** Beim allerersten Besuch werden sämtliche App-Shell-Assets im Hintergrund vorab heruntergeladen, was das initiale Transfervolumen leicht erhöht (bei unserem schlanken Bundle-Umfang jedoch unter wenigen hundert Kilobyte).
-* **Risiken:** Ein fehlerhaft konfiguriertes Pre-Cache-Glob-Pattern könnte Assets übersehen. Wir schließen deshalb explizit `**/*.{js,css,html,ico,png,svg,json,woff2}` in die Workbox-Konfiguration ein.
+* **Risiken:** Ein zu breites Pre-Cache-Pattern würde dynamische JSON-Daten oder Quell-SVGs versehentlich statisch einfrieren. Wir nutzen daher `globPatterns: ['**/*.{js,css,html,ico,png,svg}']` und schließen über `globIgnores: ['**/conference-data.json', '**/icons/logo.svg']` explizit die Laufzeit-Daten sowie das Icon-Quellasset aus (inkl. `dirStyle: 'flat'` beim SSG-Output).
 
 ---
 
@@ -55,12 +55,12 @@ Das Composable `useConferenceData()` stellt die 20 Sessions, 18 Speaker, Tracks 
 * **Stale-While-Revalidate (SWR):** Der Service Worker liefert `/conference-data.json` sofort aus dem lokalen Cache (`conference-data-cache`) an die Anwendung zurück und aktualisiert den Cache-Eintrag parallel im Hintergrund über das Netzwerk, sofern eine Verbindung besteht.
 
 ### Entscheidung
-Wir wählen **Stale-While-Revalidate** für die Route `/conference-data.json` (sowie das Pre-Caching des initialen Standes), abgesichert durch die fehlertolerante Fallback-Logik in `useConferenceData()`.
+Wir wählen **Stale-While-Revalidate** (`cacheName: 'conference-data-cache'`) für Same-Origin-Anfragen auf `/conference-data.json`, abgesichert durch den im JS-Bundle eingebetteten Initialstand (`conferenceDataJson`) und die fehlertolerante Fallback-Logik in `useConferenceData()`.
 
 ### Konsequenzen
 * **Positiv:** Vollständige Konsistenz zwischen Schritt 2 (ADR-0005) und Schritt 3: Nutzende erhalten im Vortragssaal oder Flugmodus sofortige Antwortzeiten aus dem Cache (`from ServiceWorker`), während Raum- oder Zeitänderungen bei bestehender Verbindung automatisch im Hintergrund eingespielt werden. Schlägt der Hintergrund-Request im Offline-Modus fehl, behält `useConferenceData()` den gecachten bzw. statisch eingebetteten Datensatz ohne Fehlermeldung im UI bei.
 * **Negativ:** Wird ein Raum auf dem Server geändert, sieht der Client beim unmittelbar ersten Aufruf nach der Änderung zunächst noch den gecachten Stand (`Stale`), bevor die Revalidierung im Hintergrund abgeschlossen ist.
-* **Risiken:** Ohne Begrenzung könnten veraltete Einträge unbegrenzt im Cache verbleiben; wir begrenzen den Runtime-Cache daher über das Workbox-`ExpirationPlugin` (z. B. `maxEntries: 5`, `maxAgeSeconds: 86400`).
+* **Risiken:** Ohne Begrenzung könnten veraltete Einträge unbegrenzt im Cache verbleiben; wir begrenzen den Runtime-Cache daher konkret über `expiration: { maxEntries: 5, maxAgeSeconds: 86400 }` sowie `cacheableResponse: { statuses: [0, 200] }`.
 
 ---
 
@@ -72,7 +72,7 @@ Das Feature „Mein Programm“ (`/my-programme`) speichert über `usePersonalPr
 ### Betrachtete Optionen
 * **Ausschließliche `localStorage`-Nutzung ohne Service-Worker-Navigation-Fallback:** Funktioniert nur, solange Nutzende die Seite niemals neu laden und nur innerhalb der bereits geöffneten Single-Page-Application navigieren. Ein Reload von `/my-programme` im Offline-Modus schlägt fehl.
 * **Speicherung vollständiger Session-Objekte in `localStorage` oder `IndexedDB`:** Würde zwar die Abhängigkeit von `conference-data.json` reduzieren, führt aber laut unserem State-Management-Konzept aus Schritt 1 zu Dateninkonsistenzen (Stale Data bei Raumänderungen) und löst das Problem der fehlenden App-Shell beim Offline-Reload nicht.
-* **Kombination aus `localStorage` (ID-Persistenz), Pre-Cached App-Shell (`navigateFallback: '/index.html'`) und gecachter `conference-data.json`:** Der Service Worker beantwortet direkte Navigationsanfragen auf `/my-programme` offline mit der gecachten `index.html`, woraufhin Vue Router die `PersonalProgrammeView` lädt, `usePersonalProgramme()` die IDs aus dem `localStorage` rehydriert und mit den gecachten Konferenzdaten abgleicht.
+* **Kombination aus `localStorage` (ID-Persistenz), Pre-Cached App-Shell (`navigateFallback: 'index.html'`, abgesichert durch `navigateFallbackDenylist`) und gecachter `conference-data.json`:** Der Service Worker beantwortet direkte Navigationsanfragen auf `/my-programme` offline mit der gecachten `index.html`, woraufhin Vue Router die `PersonalProgrammeView` lädt, `usePersonalProgramme()` die IDs aus dem `localStorage` rehydriert und mit dem Runtime-Cache bzw. dem eingebetteten Datenstand abgleicht.
 
 ### Entscheidung
 Wir behalten die **reine ID-Persistenz im `localStorage`** bei und sichern die Offline-Erreichbarkeit der CSR-Route `/my-programme` über das **Pre-Caching der App-Shell inklusive `navigateFallback` sowie die gecachte `conference-data.json`** ab.
@@ -86,15 +86,21 @@ Wir behalten die **reine ID-Persistenz im `localStorage`** bei und sichern die O
 
 ## 4. Konkret getestete Szenarien (Gemeinsames Testprotokoll)
 
-Die folgenden drei Pflichtszenarien wurden nach dem Produktions-Build (`npm run build && npm run preview`) von beiden Teammitgliedern unabhängig auf dem jeweils eigenen System durchgeführt und im Cross-Review abgeglichen:
-- **Testumgebung 1 (Eric Drößiger):** 
-- **Testumgebung 2 (Georg Richter):** Windows 11, Mozilla Firefox
+Die folgenden drei Pflichtszenarien wurden nach dem Produktions-Build (`npm run build && npx vite preview --port 4173 --strictPort`) auf Testumgebung 2 durchgeführt; der unabhängige Cross-Review-Durchlauf auf Testumgebung 1 steht noch aus:
+- **Testumgebung 1 (Eric Drößiger):** *Noch ausstehend (unabhängiger Durchlauf erforderlich)*
+- **Testumgebung 2 (Georg Richter):** Windows 11, Google Chrome 157 (`Chrome/157.0.8103.51`, `npx vite preview` auf `http://localhost:4173`)
 
-### Szenario 1: Programm einmal online geladen, Flugmodus aktiviert, Session-Übersicht erneut geöffnet
-* **Ausgangslage:** Der Produktions-Build läuft lokal unter `http://localhost:4173`. Die Startseite (`/`) mit der Session-Übersicht wurde einmalig bei aktiver Verbindung im Browser geladen. Im DevTools-Tab *Application → Service Workers* ist der Service Worker (`sw.js`) im Status *activated and is running* sichtbar; der Pre-Cache enthält alle HTML-, JS-, CSS- und JSON-Ressourcen.
+### Szenario 1: Programm einmal online geladen, Offline-Modus aktiviert, Session-Übersicht erneut geöffnet
+* **Ausgangslage:** Der Produktions-Build läuft lokal unter `http://localhost:4173`. Die Startseite (`/`) wurde einmal online geladen; der Service Worker (`sw.js`) ist aktiviert und kontrolliert die Seite, während `workbox-precache-v2` alle 56 eindeutigen App-Shell-, HTML-SSG-, Asset- und Icon-Einträge vorhält.
+* **Aktion:** Über das Chrome-DevTools-Network-Tab („Offline“) wird der Browser offline geschaltet und die Startseite (`/`) per Reload neu geladen; anschließend wird im Track-Dropdown nach `frontend-architecture` gefiltert und zurückgesetzt.
+* **Beobachtetes Verhalten:** Die Startseite und alle 8 Ressourcen laden mit HTTP `200 (ServiceWorker)` (`0 B` übertragen, `169 kB` Ressourcen) ohne fehlgeschlagene Requests. Alle 20 Session-Karten bleiben sichtbar; beim anschließenden Track-Filter reduziert sich die Anzeige offline verzögerungsfrei auf 4 passende Sessions.
 
-### Szenario 2 „Mein Programm“ offline geöffnet, nachdem zuvor Sessions hinzugefügt wurden
-* **Ausgangslage:** Die Anwendung wurde zuvor online geladen. Auf der Übersichtsseite und einer Detailseite wurden drei Sessions (z. B. `session-1`, `session-5`, `session-12`) per Klick auf *Add to Programme* vorgemerkt. Im Header-Badge wird der Zähler `3` angezeigt, und im `localStorage` ist unter `gamefoundry_my_programme` das JSON-Array `["session-1","session-5","session-12"]` persistiert.
+### Szenario 2: „Mein Programm“ offline geöffnet, nachdem zuvor Sessions hinzugefügt wurden
+* **Ausgangslage:** Nach initialem Online-Laden werden drei Sessions (`s01`, `s05`, `s12`) auf der Übersichtsseite vorgemerkt (`localStorage`-Schlüssel `gamefoundry_my_programme` enthält `["s01","s05","s12"]`, Navigation-Badge zeigt `3`). Zudem wurde `/my-programme` zuvor online geöffnet, sodass `/conference-data.json` via `StaleWhileRevalidate` in `conference-data-cache` liegt.
+* **Aktion:** Im Chrome-DevTools-Network-Tab wird *Offline* aktiviert, `/my-programme` neu geladen und die erste Session offline über *Remove from Programme* entfernt.
+* **Beobachtetes Verhalten:** App-Shell (`navigateFallback`), View-Chunk und Runtime-Cache liefern `/my-programme` sowie `/conference-data.json` sofort mit HTTP `200 (ServiceWorker)` (`0 B` übertragen). Die parallele SWR-Hintergrund-Revalidierung schlägt offline erwartungsgemäß fehl (`net::ERR_INTERNET_DISCONNECTED`); alle drei Sessions rendern vollständig und sinken beim Entfernen konsistent auf `2` (`["s05","s12"]`).
 
 ### Szenario 3: Erstbesuch ohne vorheriges Online-Laden im Offline-Zustand (Bewusster Grenzfall)
-* **Ausgangslage:** Es wird ein frisches Browser-Profil (Inkognito-Fenster bzw. nach vollständigem Leeren von Cache Storage, Service Worker und `localStorage` über *Application → Clear storage*) verwendet. Die Anwendung wurde in diesem Browser-Kontext noch **nie** zuvor online geöffnet; es ist folglich kein Service Worker registriert und kein lokaler Cache vorhanden. Bereits vor dem ersten Seitenaufruf wird der **Offline**-Modus aktiviert.
+* **Ausgangslage:** In einem frischen Browser-Kontext ohne vorherige Online-Sitzung existieren weder Service Worker (`sw.js`) noch Einträge in Cache Storage oder `localStorage`. Bereits vor dem ersten Seitenaufruf wird der Browser in den Offline-Modus versetzt.
+* **Aktion:** Die URL `http://localhost:4173/` wird erstmals direkt in der Adresszeile aufgerufen.
+* **Beobachtetes Verhalten:** Da noch kein Service Worker installiert ist, der die Anfrage abfangen könnte, schlägt der Navigations-Request mit `net::ERR_INTERNET_DISCONNECTED` fehl und der Browser zeigt die Standard-Offline-Fehlerseite. Dies bestätigt die bewusste Systemgrenze einer Web-PWA: Erst nach einem initialen Online-Besuch kann das App-Shell-Precaching greifen.

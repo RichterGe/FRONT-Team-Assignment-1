@@ -70,34 +70,20 @@ Wir entscheiden uns für den hybriden Ansatz:
 ## 3. Session-Detailseiten (Federführend: Georg Richter / Review: Eric Drößiger)
 
 ### Kontext
-Jede der 20 Sessions besitzt eine eigene Detailseite (Route z.B. `/sessions/[id]`) mit Informationen wie Abstract, 
-Start-/Endzeit, Format, Level und dem zugewiesenen Raum. Da Konferenz-Inhalte öffentlich auffindbar sein sollen, 
-müssen diese Seiten zwingend für Suchmaschinen (SEO) und Social-Media-Scraper lesbar sein, was reines CSR 
-ausschließt. Im Gegensatz zu den Speaker-Biografien sind die logistischen Metadaten einer Session (wie der Raum oder 
-die genaue Uhrzeit) jedoch potenziell veränderlich, falls es auf der Konferenz zu kurzfristigen Änderungen kommt.
+Jede der 20 Sessions besitzt eine eigene Detailseite (`/sessions/[id]`) mit Abstract, Start-/Endzeit, Format, Level und Raum. Da Session-Seiten öffentlich über Suchmaschinen (SEO) und Social-Media-Previews auffindbar sein sollen, scheidet reines CSR aus. Anders als bei den Speaker-Biografien können sich logistische Metadaten wie Raum oder Uhrzeit bei kurzfristigen Konferenzänderungen jedoch ändern.
 
 ### Betrachtete Optionen
-*   **ISR (Incremental Static Regeneration):** Bietet stets aktuelle Daten, erfordert aber ein komplexes serverseitiges 
-Setup oder Meta-Frameworks (wie Nuxt), was unser aktuelles Vue+Vite-Grundgerüst übersteigt.
-*   **SSG (Static Site Generation) pur:** Exzellente Performance und SEO, aber out-of-sync, wenn sich Zeiten 
-ändern und kein neuer Build angestoßen wird.
-*   **SSG mit anschließender CSR-Aktualisierung (Stale-While-Revalidate-Pattern):** Die Seite wird statisch generiert 
-(SEO-freundlich), aber sobald das JavaScript im Browser geladen ist (Hydration), prüft der Client die Daten neu.
+*   **ISR (Incremental Static Regeneration):** Hält Daten aktuell, erfordert aber ein serverseitiges Laufzeit-Setup bzw. Meta-Framework (wie Nuxt), was unser Vue+Vite-Grundgerüst übersteigt.
+*   **Reines SSG (Static Site Generation):** Bietet hohe Performance und SEO, liefert bei Raumänderungen ohne neuen Build aber veraltete Zeiten aus.
+*   **SSG mit clientseitiger Aktualisierung (Stale-While-Revalidate-Pattern):** Liefert vollständiges statisches HTML für sofortige Anzeige und SEO aus und aktualisiert die Daten nach der Hydration im Client.
 
 ### Entscheidung
-Wir entscheiden uns für **SSG (Static Site Generation) in Kombination mit einer clientseitigen Aktualisierung (CSR)**
-zur Laufzeit.
+Wir wählen **SSG (Static Site Generation) kombiniert mit einer clientseitigen Aktualisierung (CSR)** zur Laufzeit.
 
 ### Konsequenzen
-*   **Positiv:** Diese Lösung ist in unserem bestehenden Vite-Setup mit minimalem Aufwand umsetzbar. Der Nutzer und 
-Suchmaschinen erhalten sofort das voll gerenderte HTML (Titel, Abstract) ohne Wartezeit auf ein leeres Div. 
-Sobald die App hydriert ist, lädt das `useConferenceData()`-Composable die aktuellen Daten im Client nach, sodass Raum- 
-oder Zeitänderungen sofort angewendet werden.
-*   **Negativ:** Es entsteht ein leichter Overhead, da der Client die JSON-Datei beim Seitenaufruf neu abfragt, obwohl 
-die statische Seite bereits existiert.
-*   **Risiken:** Nutzer könnten für den Bruchteil einer Sekunde veraltete Zeiten (die statisch generierten) sehen, bevor 
-das JavaScript die Seite aktualisiert (Flicker-Effekt). Für unseren Anwendungsfall ist dieser Kompromiss aus Performance, 
-SEO und Einfachheit jedoch vertretbar.
+*   **Positiv:** Ohne zusätzliches Server-Setup erhalten Besuchende und Suchmaschinen sofort gerendertes HTML. Nach der Hydration ruft `useConferenceData()` die aktuelle `conference-data.json` im Client ab, sodass Raum- oder Zeitänderungen sofort sichtbar werden.
+*   **Negativ:** Der zusätzliche Client-Request beim Seitenaufruf erzeugt geringen Netzwerk-Overhead trotz bereits ausgeliefertem HTML.
+*   **Risiken:** Kurzzeitig können vor abgeschlossener Aktualisierung noch die statischen Build-Daten sichtbar sein (kurzes Umspringen), was für diesen Anwendungsfall aber vertretbar ist.
 
 ---
 

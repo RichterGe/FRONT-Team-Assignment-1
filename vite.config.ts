@@ -101,8 +101,26 @@ export default defineConfig({
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/\/[^/?]+\.[^/]+$/],
 
-        // B.2 Sessions-/Speaker-Daten → Stale-While-Revalidate (Georg)
-        // runtimeCaching: [ ... ],
+        // B.2 Sessions-/Speaker-Daten → Stale-While-Revalidate (Task C / ADR-0006):
+        // Liefert sofort den gecachten JSON-Stand (oder in Erstkonfiguration das Netz)
+        // und aktualisiert conference-data.json im Hintergrund für Folgeaufrufe.
+        runtimeCaching: [
+          {
+            urlPattern: ({ sameOrigin, url }) =>
+              sameOrigin && url.pathname.endsWith('/conference-data.json'),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'conference-data-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],
