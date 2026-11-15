@@ -20,7 +20,7 @@ npm run dev
 ### Step 3
 
 ```sh
-Open the local address printed by Vite Preview to inspect the project.
+Open the local address printed by Vite to inspect the project.
 ```
 
 
