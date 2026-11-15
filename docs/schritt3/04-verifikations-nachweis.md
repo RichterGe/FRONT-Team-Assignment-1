@@ -26,6 +26,10 @@ Nach einem einmaligen Online-Besuch von `http://localhost:4173/` kontrollierte `
 
 ![Szenario 1: Startseite offline mit 20 geladenen Sessions](./assets/szenario-1-overview-offline.png)
 
+**Testumgebung 1 (Eric Drößiger):** Startseite offline nach Reload, alle 20 Sessions sichtbar; Service Worker #43 „activated and is running“, Offline über *Application → Service Workers*.
+
+![Szenario 1, Testumgebung 1: Startseite offline, Service Worker aktiv](./assets/scenario-1-overview-offline-env1.png)
+
 ### Stale-While-Revalidate auf `/conference-data.json` (B.2)
 Gemäß ADR-0005 ruft die Startseite `/` selbst kein `loadData()` auf; der Initialstand stammt aus dem gebündelten JSON (`conferenceDataJson`). Sobald online `/sessions/s01` oder `/my-programme` geöffnet wird, greift `StaleWhileRevalidate` aus [vite.config.ts](../../vite.config.ts):
 1. Die Workbox-Route prüft `sameOrigin && url.pathname.endsWith('/conference-data.json')` und legt die Antwort (`statuses: [0, 200]`) im Runtime-Cache `conference-data-cache` ab (`maxEntries: 5`, `maxAgeSeconds: 86400`).
@@ -36,10 +40,20 @@ Nach dem Vormerken der Sessions `s01`, `s05` und `s12` enthielt `localStorage['g
 
 ![Szenario 2: Mein Programm offline mit gespeicherten Sessions](./assets/szenario-2-my-programme-offline.png)
 
+**Testumgebung 1 (Eric Drößiger):** `/my-programme` offline per Reload, zwei gemerkte Sessions, Badge `2`. Die Konsole zeigt den fehlgeschlagenen Abruf von `/conference-data.json` (`ERR_INTERNET_DISCONNECTED`) und den Fallback auf die gebündelten Daten (`keeping static build data`); die Seite rendert trotzdem vollständig.
+
+![Szenario 2, Testumgebung 1: Mein Programm offline mit Fallback auf Bundle-Daten](./assets/scenario-2-my-programme-offline-env1.png)
+
 ### Szenario 3 — Erstbesuch im Offline-Modus (Grenzfall)
 In einem frischen Browser-Kontext ohne vorherige Online-Sitzung (kein registrierter SW, leerer Cache) wurde `http://localhost:4173/` direkt im Offline-Modus aufgerufen. Der Navigations-Request endete erwartungsgemäß mit `net::ERR_INTERNET_DISCONNECTED` und der Chrome-Fehlerseite (`chrome-error://chromewebdata/`).
 
 ![Szenario 3: Erstbesuch offline ohne vorherigen Cache](./assets/szenario-3-first-visit-offline.png)
+
+**Testumgebung 1 (Eric Drößiger):** Frisches Inkognito-Fenster, Offline vor dem ersten Aufruf. Unter *Service Workers* ist keine Registrierung vorhanden; der Dokument-Request auf `localhost` schlägt mit `net::ERR_INTERNET_DISCONNECTED` fehl.
+
+![Szenario 3, Testumgebung 1: Erstbesuch offline, kein Service Worker registriert](./assets/scenario-3-first-visit-offline1-env1.png)
+
+![Szenario 3, Testumgebung 1: Network-Tab mit fehlgeschlagenem Dokument-Request](./assets/scenario-3-first-visit-offline2-env1.png)
 
 ---
 
